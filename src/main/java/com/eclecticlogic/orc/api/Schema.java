@@ -23,7 +23,7 @@ import java.util.function.Function;
  */
 public interface Schema<T> {
 
-    Schema<T> field(Function<T, Object> fieldFunction);
+    Schema<T> column(Function<T, Object> fieldFunction);
 
-    Schema<T> field(String name, Function<T, Object> fieldFunction);
+    Schema<T> column(String name, Function<T, Object> columnFunction);
 }

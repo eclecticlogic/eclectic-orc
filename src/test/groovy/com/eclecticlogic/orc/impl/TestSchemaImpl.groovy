@@ -30,10 +30,9 @@ class TestSchemaImpl {
 
     void testFieldNames() {
         SchemaSpiImpl schema = Factory.createSchema(Graduate)
-            .field {it.name}
-            .field {it.age}
-            .field('money') {it.allowance }
-        Assert.assertEquals(schema.fieldNames, ['name', 'age', 'money'])
-        Assert.assertEquals(schema.accessorNames, ['name', 'age', 'allowance'])
+            .column() {it.name}
+            .column() {it.age}
+            .column('money') {it.allowance }
+        schema.compile()
     }
 }

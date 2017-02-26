@@ -10,10 +10,10 @@ public class FieldSetup {
 
     void foo() {
         Factory.createSchema(Rtc.class)
-                .field(Rtc::getRoyaltyItem)
-                .field(Rtc::getParticipantId)
-                .field(Rtc::getAllocation)
-                .field(it -> it.getAllocation().getClass());
+                .column(Rtc::getRoyaltyItem)
+                .column(Rtc::getParticipantId)
+                .column(Rtc::getAllocation)
+                .column(it -> it.getAllocation().getClass());
 
     }
 }

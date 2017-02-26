@@ -16,6 +16,7 @@
 
 package com.eclecticlogic.orc.impl;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,8 @@ public class SchemaType {
     SchemaType listChild;
     SchemaType mapKey;
     SchemaType mapValue;
+    private List<Method> accessorMethods = new ArrayList();
+    String lastAccessorProperty;
 
     public boolean isStructType() {
         return !structChildren.isEmpty();
@@ -119,11 +122,15 @@ public class SchemaType {
     }
 
 
-    public boolean isScaleFirst() {
-        return scale != 0 && isPrecisionLast();
+    public List<Method> getAccessorMethods() {
+        return accessorMethods;
     }
 
-    public boolean isScaleLast() {
-        return scale != 0 && isPrecisionFirst();
+    public String getLastAccessorProperty() {
+        return lastAccessorProperty;
+    }
+
+    public void setLastAccessorProperty(String lastAccessorProperty) {
+        this.lastAccessorProperty = lastAccessorProperty;
     }
 }

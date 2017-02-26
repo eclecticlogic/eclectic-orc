@@ -32,17 +32,13 @@ public class SchemaSpiImpl<T> implements SchemaSpi<T> {
     final Class<T> schemaClz;
     final T proxy;
     final ProxyManager<T> proxyManager = new ProxyManager<>(this);
-    final SchemaType schemaType;
-    final List<String> fieldNames = new ArrayList<>();
-    final List<String> accessorNames = new ArrayList<>();
-    final List<String> currentFields = new ArrayList<>();
+    final List<Column> schemaColumns = new ArrayList<>();
+    SchemaType currentSchemaType;
 
 
     public SchemaSpiImpl(Class<T> clz) {
         schemaClz = clz;
         proxy = proxyManager.generate(clz);
-        schemaType = new SchemaType();
-        schemaType.setCreateInstruction(getCreateInstruction(clz));
     }
 
 
@@ -52,29 +48,42 @@ public class SchemaSpiImpl<T> implements SchemaSpi<T> {
     }
 
     @Override
-    public Schema<T> field(Function<T, Object> fieldFunction) {
-        return field(fieldFunction, () -> currentFields.get(currentFields.size() - 1));
+    public Schema<T> column(Function<T, Object> columnFunction) {
+        return column(() -> currentSchemaType.lastAccessorProperty, columnFunction);
     }
 
 
     @Override
-    public Schema<T> field(String name, Function<T, Object> fieldFunction) {
-        return field(fieldFunction, () -> name);
+    public Schema<T> column(String name, Function<T, Object> columnFunction) {
+        return column(() -> name, columnFunction);
     }
 
 
-    Schema<T> field(Function<T, Object> fieldFunction, Supplier<String> nameFunction) {
-        fieldFunction.apply(proxy);
-        accessorNames.add(String.join(".", currentFields));
-        fieldNames.add(nameFunction.get());
-        currentFields.clear();
+    Schema<T> column(Supplier<String> nameFunction, Function<T, Object> columnFunction) {
+        Column column = new Column();
+        column.setNameFunction(nameFunction);
+        column.setColumnFunction(columnFunction);
+        schemaColumns.add(column);
         return this;
+    }
+
+    public SchemaType compile() {
+        SchemaType struct = new SchemaType();
+        struct.setCreateInstruction(getCreateInstruction(schemaClz));
+        for (Column<T> column: schemaColumns) {
+            currentSchemaType = new SchemaType();
+            column.getColumnFunction().apply(proxy);
+            currentSchemaType.setName(column.getNameFunction().get());
+            struct.getStructChildren().add(currentSchemaType);
+        }
+        return struct;
     }
 
 
     @Override
     public void add(Method accessor) {
-        currentFields.add(proxyManager.getPropertyFor(accessor).getName());
+        currentSchemaType.getAccessorMethods().add(accessor);
+        currentSchemaType.setLastAccessorProperty(proxyManager.getPropertyFor(accessor).getName());
     }
 
     String getCreateInstruction(Class<?> clz) {
