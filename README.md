@@ -1,2 +1,2 @@
-# eclectic-orc
+# eclectic-eclectic.orc
 Java object writer for ORC
