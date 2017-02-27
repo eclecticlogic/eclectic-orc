@@ -1,0 +1,3 @@
+columnList(schemaType) ::= <<
+    
+>>
