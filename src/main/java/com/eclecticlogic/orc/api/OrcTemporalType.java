@@ -14,20 +14,12 @@
  * limitations under the License.
  */
 
-package com.eclecticlogic.orc.impl;
-
-import com.eclecticlogic.orc.api.Schema;
-
-import java.lang.reflect.Method;
+package com.eclecticlogic.orc.api;
 
 /**
- * Created by kabram
+ * Created by kabram.
  */
-public interface SchemaSpi<T> extends Schema<T> {
-
-    Class<T> getSchemaClass();
-
-    SchemaType compile();
-
-    void add(Method method);
+public enum OrcTemporalType {
+    DATE, //
+    TIMESTAMP
 }

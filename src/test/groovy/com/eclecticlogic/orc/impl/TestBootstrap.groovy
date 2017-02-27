@@ -16,8 +16,10 @@
 
 package com.eclecticlogic.orc.impl
 
-import com.eclecticlogic.orc.impl.bootstrap.OrcWriterBootstrap
-import org.testng.Assert
+import com.eclecticlogic.orc.Graduate
+import com.eclecticlogic.orc.api.Factory
+import com.eclecticlogic.orc.api.OrcWriter
+import com.eclecticlogic.orc.api.Schema
 import org.testng.annotations.Test
 
 /**
@@ -27,6 +29,10 @@ import org.testng.annotations.Test
 class TestBootstrap {
 
     void testStringTemplate() {
-        Assert.assertEquals(OrcWriterBootstrap.getTypeDescriptionBody(null), 'abc')
+        Schema schema = Factory.createSchema(Graduate)
+                .column() {it.name}
+                .column() {it.age}
+                .column('money') {it.allowance }
+        OrcWriter writer = Factory.createWriter(schema)
     }
 }

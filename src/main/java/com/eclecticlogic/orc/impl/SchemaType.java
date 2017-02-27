@@ -16,121 +16,40 @@
 
 package com.eclecticlogic.orc.impl;
 
-import java.lang.reflect.Method;
+import com.eclecticlogic.orc.impl.schema.BaseSchemaType;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by kabram
  */
-public class SchemaType {
-    String name;
-    String createInstruction;
-    Integer length;
-    int precision, scale;
-    List<SchemaType> structChildren = new ArrayList<>();
-    SchemaType listChild;
-    SchemaType mapKey;
-    SchemaType mapValue;
-    private List<Method> accessorMethods = new ArrayList();
-    String lastAccessorProperty;
+public class SchemaType extends BaseSchemaType {
 
-    public boolean isStructType() {
-        return !structChildren.isEmpty();
-    }
+    protected List<SchemaType> structChildren = new ArrayList<>();
+    protected SchemaType listChild;
+    protected SchemaType mapKey;
+    protected SchemaType mapValue;
 
-    public boolean isListType() {
-        return listChild != null;
-    }
-
-    public boolean isMapType() {
-        return mapKey != null;
-    }
 
     public List<SchemaType> getStructChildren() {
         return structChildren;
     }
 
+
     public SchemaType getListChild() {
         return listChild;
     }
+
 
     public SchemaType getMapKey() {
         return mapKey;
     }
 
+
     public SchemaType getMapValue() {
         return mapValue;
     }
 
-    public String getName() {
-        return name;
-    }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getCreateInstruction() {
-        if (isStructType()) {
-            return "createStruct";
-        } else if (isListType()) {
-            return "createList";
-        } else if (isMapType()) {
-            return "createMap";
-        }
-        return createInstruction;
-    }
-
-    public void setCreateInstruction(String createInstruction) {
-        this.createInstruction = createInstruction;
-    }
-
-
-    public Integer getLength() {
-        return length;
-    }
-
-    public void setLength(Integer length) {
-        this.length = length;
-    }
-
-    public int getPrecision() {
-        return precision;
-    }
-
-    public void setPrecision(int precision) {
-        this.precision = precision;
-    }
-
-    public int getScale() {
-        return scale;
-    }
-
-    public void setScale(int scale) {
-        this.scale = scale;
-    }
-
-
-    public boolean isPrecisionFirst() {
-        return precision != 0 && precision > 10;
-    }
-
-
-    public boolean isPrecisionLast() {
-        return precision != 0 && precision <= 10;
-    }
-
-
-    public List<Method> getAccessorMethods() {
-        return accessorMethods;
-    }
-
-    public String getLastAccessorProperty() {
-        return lastAccessorProperty;
-    }
-
-    public void setLastAccessorProperty(String lastAccessorProperty) {
-        this.lastAccessorProperty = lastAccessorProperty;
-    }
 }

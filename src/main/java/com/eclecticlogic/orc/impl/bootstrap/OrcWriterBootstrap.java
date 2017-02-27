@@ -17,7 +17,6 @@
 package com.eclecticlogic.orc.impl.bootstrap;
 
 import com.eclecticlogic.orc.api.OrcWriter;
-import com.eclecticlogic.orc.api.Schema;
 import com.eclecticlogic.orc.impl.AbstractOrcWriter;
 import com.eclecticlogic.orc.impl.SchemaSpi;
 import com.eclecticlogic.orc.impl.SchemaType;
@@ -26,8 +25,8 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupDir;
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
 
 /**
  * Created by kabram
@@ -35,25 +34,32 @@ import java.util.function.Supplier;
 public class OrcWriterBootstrap {
 
     private static final String ORC_WRITER_PACKAGE = "com.eclecticlogic.eclectic.orc.impl.writer.";
+
+    private final static ConcurrentHashMap<Class<?>, OrcWriter<?>> writersByClass = new ConcurrentHashMap<>();
     // This is used to prevent linkage error due to concurrent creation of classes.
     private static AtomicInteger extractorNameSuffix = new AtomicInteger();
 
 
-    public static <T> OrcWriter<T> create(Supplier<Schema<T>> schemaSupplier) {
-        return null;
+    @SuppressWarnings("unchecked")
+    public static <T> OrcWriter<T> create(SchemaSpi<T> schema) {
+        Class<T> clz = schema.getSchemaClass();
+        writersByClass.computeIfAbsent(clz, (cz) -> createWriter(schema));
+        return (OrcWriter<T>)writersByClass.get(clz);
     }
 
 
-    static <T> OrcWriter<T> createWriter(Supplier<Schema<T>> schemaSupplier) {
-        SchemaSpi<T> schema = (SchemaSpi<T>)schemaSupplier.get();
+    @SuppressWarnings("unchecked")
+    static <T> OrcWriter<T> createWriter(SchemaSpi<T> schema) {
         ClassPool pool = ClassPool.getDefault();
         pool.insertClassPath(new ClassClassPath(AbstractOrcWriter.class));
         CtClass cc = pool.makeClass(ORC_WRITER_PACKAGE + schema.getSchemaClass().getSimpleName()
                 + "$OrcWriter_" + extractorNameSuffix.incrementAndGet());
+        SchemaType schemaType = schema.compile();
         try {
             cc.setSuperclass(pool.get(AbstractOrcWriter.class.getName()));
 
-            cc.addMethod(CtNewMethod.make(getTypeDescriptionBody(schema), cc));
+            cc.addMethod(CtNewMethod.make(getTypeDescriptionBody(schemaType), cc));
+            cc.addMethod(CtNewMethod.make(getWriteBody(schemaType, schema.getSchemaClass()), cc));
         } catch (CannotCompileException | NotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -66,14 +72,24 @@ public class OrcWriterBootstrap {
     }
 
 
-    static <T> String getTypeDescriptionBody(SchemaSpi<T> schema) {
+    static String getTypeDescriptionBody(SchemaType schemaType) {
         STGroup group = new STGroupDir("eclectic/orc/template");
         ST st = group.getInstanceOf("schemaMethod");
-        SchemaType struct = new SchemaType();
 
-        SchemaType f = new SchemaType();f.setName("score");f.setCreateInstruction("createVarchar");
-        struct.getStructChildren().add(f);
-        st.add("schemaType", struct);
-        return st.render();
+        st.add("schemaType", schemaType);
+        String s = st.render();
+        System.out.println(s);
+        return s;
+    }
+
+
+    static String getWriteBody(SchemaType schemaType, Class<?> schemaClass) {
+        STGroup group = new STGroupDir("eclectic/orc/template");
+        ST st = group.getInstanceOf("writeMethod");
+        st.add("schemaType", schemaType);
+        st.add("sclass", schemaClass);
+        String s = st.render();
+        System.out.println(s);
+        return s;
     }
 }

@@ -50,7 +50,6 @@ public class PropertyContainer<T> {
                         it.getReadMethod().getReturnType().isArray() || //
                         !it.getReadMethod().getReturnType().getPackage().getName().contains("groovy"))
                 .collect(toMap(PropertyDescriptor::getReadMethod, it -> it));
-        System.out.println(propertiesByReadMethod);
     }
 
 

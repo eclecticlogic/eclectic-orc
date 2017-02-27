@@ -14,20 +14,22 @@
  * limitations under the License.
  */
 
-package com.eclecticlogic.orc.impl;
+package com.eclecticlogic.orc.api;
 
-import com.eclecticlogic.orc.api.Schema;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-import java.lang.reflect.Method;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Created by kabram
+ * Created by kabram.
  */
-public interface SchemaSpi<T> extends Schema<T> {
-
-    Class<T> getSchemaClass();
-
-    SchemaType compile();
-
-    void add(Method method);
+@Target(METHOD)
+@Retention(RUNTIME)
+public @interface OrcTemporal {
+    /**
+     * Discriminate between date and timstamp
+     */
+    OrcTemporalType value();
 }

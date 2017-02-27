@@ -1,0 +1,3 @@
+columnBinary(schemaType) ::= <<
+    // TODO
+>>

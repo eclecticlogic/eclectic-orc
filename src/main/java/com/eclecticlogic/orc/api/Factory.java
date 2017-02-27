@@ -16,6 +16,7 @@
 
 package com.eclecticlogic.orc.api;
 
+import com.eclecticlogic.orc.impl.SchemaSpi;
 import com.eclecticlogic.orc.impl.bootstrap.OrcWriterBootstrap;
 import com.eclecticlogic.orc.impl.SchemaSpiImpl;
 
@@ -31,7 +32,7 @@ public class Factory {
     }
 
 
-    public static <T> OrcWriter<T> createWriter(Supplier<Schema<T>> schemaSupplier) {
-        return OrcWriterBootstrap.create(schemaSupplier);
+    public static <T> OrcWriter<T> createWriter(Schema<T> schema) {
+        return OrcWriterBootstrap.create((SchemaSpi<T>)schema);
     }
 }

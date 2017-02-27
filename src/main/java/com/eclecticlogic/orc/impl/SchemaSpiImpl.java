@@ -17,6 +17,7 @@
 package com.eclecticlogic.orc.impl;
 
 import com.eclecticlogic.orc.api.Schema;
+import org.apache.orc.TypeDescription.Category;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -47,9 +48,10 @@ public class SchemaSpiImpl<T> implements SchemaSpi<T> {
         return schemaClz;
     }
 
+
     @Override
     public Schema<T> column(Function<T, Object> columnFunction) {
-        return column(() -> currentSchemaType.lastAccessorProperty, columnFunction);
+        return column(() -> currentSchemaType.getLastAccessedProperty(), columnFunction);
     }
 
 
@@ -67,26 +69,38 @@ public class SchemaSpiImpl<T> implements SchemaSpi<T> {
         return this;
     }
 
+
+    @Override
     public SchemaType compile() {
         SchemaType struct = new SchemaType();
-        struct.setCreateInstruction(getCreateInstruction(schemaClz));
-        for (Column<T> column: schemaColumns) {
+        for (Column<T> column : schemaColumns) {
             currentSchemaType = new SchemaType();
             column.getColumnFunction().apply(proxy);
             currentSchemaType.setName(column.getNameFunction().get());
             struct.getStructChildren().add(currentSchemaType);
         }
+        computeColumnIndices(struct.getStructChildren(), 1);
         return struct;
+    }
+
+
+    int computeColumnIndices(List<SchemaType> schemaTypes, int index) {
+        for (SchemaType type : schemaTypes) {
+            if (type.getCategory() == Category.STRUCT) {
+                index = computeColumnIndices(type.getStructChildren(), index);
+            } else {
+                type.setColumnIndex(index++);
+            }
+        }
+        return index;
     }
 
 
     @Override
     public void add(Method accessor) {
         currentSchemaType.getAccessorMethods().add(accessor);
-        currentSchemaType.setLastAccessorProperty(proxyManager.getPropertyFor(accessor).getName());
+        currentSchemaType.setLastAccessedProperty(proxyManager.getPropertyFor(accessor).getName());
     }
 
-    String getCreateInstruction(Class<?> clz) {
-        return "createStruct";
-    }
+
 }
