@@ -16,7 +16,7 @@
 
 package com.eclecticlogic.orc.impl;
 
-import com.eclecticlogic.orc.api.OrcWriter;
+import com.eclecticlogic.orc.OrcWriter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hive.ql.exec.vector.ColumnVector;
@@ -109,6 +109,10 @@ public abstract class AbstractOrcWriter<T> implements OrcWriter<T> {
         vector.noNulls = false;
     }
 
+
+    protected void specialCaseSetup() {
+        // TODO: Setup of list child vector size.
+    }
 
     protected abstract void write(T datum);
 }

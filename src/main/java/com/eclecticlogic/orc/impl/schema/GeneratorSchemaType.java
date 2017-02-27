@@ -16,9 +16,9 @@
 
 package com.eclecticlogic.orc.impl.schema;
 
-import com.eclecticlogic.orc.api.Orc;
-import com.eclecticlogic.orc.api.OrcTemporal;
-import com.eclecticlogic.orc.api.OrcTemporalType;
+import com.eclecticlogic.orc.Orc;
+import com.eclecticlogic.orc.OrcTemporal;
+import com.eclecticlogic.orc.OrcTemporalType;
 import com.eclecticlogic.orc.impl.bootstrap.WriterUtils;
 import org.apache.orc.TypeDescription.Category;
 
@@ -138,6 +138,8 @@ public class GeneratorSchemaType {
                 }
             }
             return Category.TIMESTAMP;
+        } else if (List.class.isAssignableFrom(clz)) {
+            return Category.LIST;
         }
         return Category.STRUCT;
     }

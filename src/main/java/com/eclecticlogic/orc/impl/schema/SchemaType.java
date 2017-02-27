@@ -14,29 +14,40 @@
  * limitations under the License.
  */
 
-package com.eclecticlogic.orc.api;
+package com.eclecticlogic.orc.impl.schema;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
-import org.apache.orc.CompressionKind;
-import org.apache.orc.OrcFile;
-
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by kabram
  */
-public interface OrcWriter<T> {
+public class SchemaType extends BaseSchemaType {
 
-    OrcWriter<T> withConfiguration(Configuration configuration);
+    protected List<SchemaType> structChildren = new ArrayList<>();
+    protected SchemaType listChild;
+    protected SchemaType mapKey;
+    protected SchemaType mapValue;
 
-    OrcWriter<T> withOptions(OrcFile.WriterOptions writerOptions);
 
-    OrcWriter<T> withCompression(CompressionKind compressionKind);
+    public List<SchemaType> getStructChildren() {
+        return structChildren;
+    }
 
-    OrcWriter<T> withBufferSize(int size);
 
-    OrcWriter<T> withBatchSize(int batchSize);
+    public SchemaType getListChild() {
+        return listChild;
+    }
 
-    void write(Path path, Iterable<T> data) throws IOException;
+
+    public SchemaType getMapKey() {
+        return mapKey;
+    }
+
+
+    public SchemaType getMapValue() {
+        return mapValue;
+    }
+
+
 }

@@ -16,7 +16,8 @@
 
 package com.eclecticlogic.orc.impl;
 
-import com.eclecticlogic.orc.api.Schema;
+import com.eclecticlogic.orc.Schema;
+import com.eclecticlogic.orc.impl.schema.SchemaType;
 import org.apache.orc.TypeDescription.Category;
 
 import java.lang.reflect.Method;
@@ -79,7 +80,7 @@ public class SchemaSpiImpl<T> implements SchemaSpi<T> {
             currentSchemaType.setName(column.getNameFunction().get());
             struct.getStructChildren().add(currentSchemaType);
         }
-        computeColumnIndices(struct.getStructChildren(), 1);
+        computeColumnIndices(struct.getStructChildren(), 0);
         return struct;
     }
 

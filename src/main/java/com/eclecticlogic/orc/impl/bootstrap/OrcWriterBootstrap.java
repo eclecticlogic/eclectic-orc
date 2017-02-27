@@ -16,10 +16,10 @@
 
 package com.eclecticlogic.orc.impl.bootstrap;
 
-import com.eclecticlogic.orc.api.OrcWriter;
+import com.eclecticlogic.orc.OrcWriter;
 import com.eclecticlogic.orc.impl.AbstractOrcWriter;
 import com.eclecticlogic.orc.impl.SchemaSpi;
-import com.eclecticlogic.orc.impl.SchemaType;
+import com.eclecticlogic.orc.impl.schema.SchemaType;
 import javassist.*;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;

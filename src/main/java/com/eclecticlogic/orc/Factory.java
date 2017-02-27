@@ -14,42 +14,23 @@
  * limitations under the License.
  */
 
-package com.eclecticlogic.orc.impl;
+package com.eclecticlogic.orc;
 
-import com.eclecticlogic.orc.impl.schema.BaseSchemaType;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.eclecticlogic.orc.impl.SchemaSpi;
+import com.eclecticlogic.orc.impl.bootstrap.OrcWriterBootstrap;
+import com.eclecticlogic.orc.impl.SchemaSpiImpl;
 
 /**
  * Created by kabram
  */
-public class SchemaType extends BaseSchemaType {
+public class Factory {
 
-    protected List<SchemaType> structChildren = new ArrayList<>();
-    protected SchemaType listChild;
-    protected SchemaType mapKey;
-    protected SchemaType mapValue;
-
-
-    public List<SchemaType> getStructChildren() {
-        return structChildren;
+    public static <T> Schema<T> createSchema(Class<T> clz) {
+        return new SchemaSpiImpl<T>(clz);
     }
 
 
-    public SchemaType getListChild() {
-        return listChild;
+    public static <T> OrcWriter<T> createWriter(Schema<T> schema) {
+        return OrcWriterBootstrap.create((SchemaSpi<T>)schema);
     }
-
-
-    public SchemaType getMapKey() {
-        return mapKey;
-    }
-
-
-    public SchemaType getMapValue() {
-        return mapValue;
-    }
-
-
 }

@@ -3,7 +3,7 @@ writeColumn(schemaType) ::= <<
         <writeStruct(schemaType)>
     <else>
         {
-            <schemaType.vectorClassName> vector = vectorizedRowBatch.cols[<schemaType.columnIndex>];
+            <schemaType.vectorClassName> vector = (<schemaType.vectorClassName>)vectorizedRowBatch.cols[<schemaType.columnIndex>];
             <if(schemaType.primitive)>
                 <writeColumnSetter(schemaType)>
             <else>

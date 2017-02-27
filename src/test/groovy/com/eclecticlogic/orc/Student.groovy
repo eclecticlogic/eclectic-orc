@@ -15,9 +15,6 @@
  *
  */
 package com.eclecticlogic.orc
-
-import com.eclecticlogic.orc.api.Orc
-
 /**
  * Created by kabram
  */

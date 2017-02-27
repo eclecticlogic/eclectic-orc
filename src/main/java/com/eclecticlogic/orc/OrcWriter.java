@@ -14,22 +14,29 @@
  * limitations under the License.
  */
 
-package com.eclecticlogic.orc.api;
+package com.eclecticlogic.orc;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.orc.CompressionKind;
+import org.apache.orc.OrcFile;
 
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import java.io.IOException;
 
 /**
- * Created by kabram.
+ * Created by kabram
  */
-@Target(METHOD)
-@Retention(RUNTIME)
-public @interface OrcTemporal {
-    /**
-     * Discriminate between date and timstamp
-     */
-    OrcTemporalType value();
+public interface OrcWriter<T> {
+
+    OrcWriter<T> withConfiguration(Configuration configuration);
+
+    OrcWriter<T> withOptions(OrcFile.WriterOptions writerOptions);
+
+    OrcWriter<T> withCompression(CompressionKind compressionKind);
+
+    OrcWriter<T> withBufferSize(int size);
+
+    OrcWriter<T> withBatchSize(int batchSize);
+
+    void write(Path path, Iterable<T> data) throws IOException;
 }

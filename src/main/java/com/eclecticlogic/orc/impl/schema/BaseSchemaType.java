@@ -16,7 +16,7 @@
 
 package com.eclecticlogic.orc.impl.schema;
 
-import com.eclecticlogic.orc.api.Orc;
+import com.eclecticlogic.orc.Orc;
 import org.apache.orc.TypeDescription.Category;
 
 /**

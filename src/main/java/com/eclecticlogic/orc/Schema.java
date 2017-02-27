@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-package com.eclecticlogic.orc.api;
+package com.eclecticlogic.orc;
+
+import java.util.function.Function;
 
 /**
- * Created by kabram.
+ * Created by kabram
  */
-public enum OrcTemporalType {
-    DATE, //
-    TIMESTAMP
+public interface Schema<T> {
+
+    Schema<T> column(Function<T, Object> fieldFunction);
+
+    Schema<T> column(String name, Function<T, Object> columnFunction);
 }

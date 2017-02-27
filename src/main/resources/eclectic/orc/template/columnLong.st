@@ -1,3 +1,3 @@
 columnLong(schemaType) ::= <<
-    column[vectorizedRowBatch.size] = datum<schemaType.propertyAccess>;
+    vector.vector[vectorizedRowBatch.size] = datum<schemaType.propertyAccess>;
 >>

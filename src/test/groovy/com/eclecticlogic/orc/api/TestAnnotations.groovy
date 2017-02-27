@@ -17,6 +17,7 @@
 package com.eclecticlogic.orc.api
 
 import com.eclecticlogic.orc.Graduate
+import com.eclecticlogic.orc.Orc
 import org.testng.annotations.Test
 
 import java.beans.BeanInfo

@@ -17,9 +17,9 @@
 package com.eclecticlogic.orc.impl
 
 import com.eclecticlogic.orc.Graduate
-import com.eclecticlogic.orc.api.Factory
-import com.eclecticlogic.orc.api.OrcWriter
-import com.eclecticlogic.orc.api.Schema
+import com.eclecticlogic.orc.Factory
+import com.eclecticlogic.orc.OrcWriter
+import com.eclecticlogic.orc.Schema
 import org.testng.annotations.Test
 
 /**

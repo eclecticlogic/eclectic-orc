@@ -14,16 +14,22 @@
  * limitations under the License.
  */
 
-package com.eclecticlogic.orc.api;
+package com.eclecticlogic.orc;
 
-import java.util.function.Function;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Created by kabram
+ * Created by kabram.
  */
-public interface Schema<T> {
-
-    Schema<T> column(Function<T, Object> fieldFunction);
-
-    Schema<T> column(String name, Function<T, Object> columnFunction);
+@Target(METHOD)
+@Retention(RUNTIME)
+public @interface OrcTemporal {
+    /**
+     * Discriminate between date and timstamp
+     */
+    OrcTemporalType value();
 }

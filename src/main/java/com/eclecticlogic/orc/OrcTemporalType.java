@@ -14,25 +14,12 @@
  * limitations under the License.
  */
 
-package com.eclecticlogic.orc.api;
-
-import com.eclecticlogic.orc.impl.SchemaSpi;
-import com.eclecticlogic.orc.impl.bootstrap.OrcWriterBootstrap;
-import com.eclecticlogic.orc.impl.SchemaSpiImpl;
-
-import java.util.function.Supplier;
+package com.eclecticlogic.orc;
 
 /**
- * Created by kabram
+ * Created by kabram.
  */
-public class Factory {
-
-    public static <T> Schema<T> createSchema(Class<T> clz) {
-        return new SchemaSpiImpl<T>(clz);
-    }
-
-
-    public static <T> OrcWriter<T> createWriter(Schema<T> schema) {
-        return OrcWriterBootstrap.create((SchemaSpi<T>)schema);
-    }
+public enum OrcTemporalType {
+    DATE, //
+    TIMESTAMP
 }

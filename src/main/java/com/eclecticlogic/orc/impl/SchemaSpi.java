@@ -16,7 +16,8 @@
 
 package com.eclecticlogic.orc.impl;
 
-import com.eclecticlogic.orc.api.Schema;
+import com.eclecticlogic.orc.Schema;
+import com.eclecticlogic.orc.impl.schema.SchemaType;
 
 import java.lang.reflect.Method;
 

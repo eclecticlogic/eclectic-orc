@@ -16,38 +16,32 @@
 
 package com.eclecticlogic.orc;
 
-import java.math.BigDecimal;
+import java.lang.annotation.*;
 
 /**
+ * Annotates additional properties of a column for type definition.
  * Created by kabram
  */
-public class Rtc {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+@Inherited
+public @interface Orc {
 
-    String royaltyItem;
-    String participantId;
-    BigDecimal allocation;
+    /**
+     * @return Length of the field. Applicable only to string. If left empty, the output column will be of type
+     * string. Otherwise the output column will be of type varchar(length).
+     */
+    int length() default 0;
 
-    public String getRoyaltyItem() {
-        return royaltyItem;
-    }
 
-    public void setRoyaltyItem(String royaltyItem) {
-        this.royaltyItem = royaltyItem;
-    }
+    /**
+     * @return Precision for BigDecimal type
+     */
+    int precision() default 0;
 
-    public String getParticipantId() {
-        return participantId;
-    }
 
-    public void setParticipantId(String participantId) {
-        this.participantId = participantId;
-    }
-
-    public BigDecimal getAllocation() {
-        return allocation;
-    }
-
-    public void setAllocation(BigDecimal allocation) {
-        this.allocation = allocation;
-    }
+    /**
+     * @return Scale for BigDecimal type.
+     */
+    int scale() default 0;
 }
