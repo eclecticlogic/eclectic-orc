@@ -20,6 +20,7 @@ import com.eclecticlogic.orc.Graduate
 import com.eclecticlogic.orc.Factory
 import com.eclecticlogic.orc.OrcWriter
 import com.eclecticlogic.orc.Schema
+import org.apache.hadoop.fs.Path
 import org.testng.annotations.Test
 
 /**
@@ -34,5 +35,11 @@ class TestBootstrap {
                 .column() {it.age}
                 .column('money') {it.allowance }
         OrcWriter writer = Factory.createWriter(schema)
+        List<Graduate> list = []
+        list << new Graduate(name: 'abc', age: 10, allowance: 150.0)
+        list << new Graduate(name: 'def', age: 20, allowance: 250.0)
+        list << new Graduate(name: 'aaa', age: 30, allowance: 350.0)
+        Path path = new Path('/home/kabram/temp/dp/graduate.orc')
+        writer.write(path, list)
     }
 }

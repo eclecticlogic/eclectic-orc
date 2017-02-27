@@ -36,8 +36,8 @@ public abstract class AbstractOrcWriter<T> implements OrcWriter<T> {
     private Configuration configuration = new Configuration();
     private OrcFile.WriterOptions writerOptions;
     private CompressionKind compressionKind;
-    private int bufferSize;
-    private int batchSize;
+    private int bufferSize = 10 * 1024;
+    private int batchSize = 1024;
     protected VectorizedRowBatch vectorizedRowBatch;
 
     @Override
