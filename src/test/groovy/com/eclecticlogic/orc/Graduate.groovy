@@ -17,6 +17,7 @@
 package com.eclecticlogic.orc;
 
 import java.math.BigDecimal
+import java.time.LocalDate
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +31,13 @@ public class Graduate extends Student {
     private BigDecimal allowance;
     private List<String> subjects = new ArrayList<>();
     private List<Long> grades = new ArrayList<>();
+    List<Character> courseGrades = new ArrayList<>();
+    List<Date> courseDates = new ArrayList<>();
+    List<Boolean> courseAudits = new ArrayList<>();
     Course course;
     YearMonth graduationDate;
     Character subjectGrade;
+    LocalDate initiationDate;
 
     public String getMajor() {
         return major;
@@ -74,4 +79,20 @@ public class Graduate extends Student {
     YearMonth getGraduationDate() {
         return graduationDate
     }
+
+    @OrcList(entryType = Character.class, averageSize = 5)
+    List<Character> getCourseGrades() {
+        return courseGrades
+    }
+
+    @OrcList(entryType = Date.class, averageSize = 5)
+    List<Date> getCourseDates() {
+        return courseDates
+    }
+
+    @OrcList(entryType = Boolean.class, averageSize = 5)
+    List<Boolean> getCourseAudits() {
+        return courseAudits
+    }
+
 }

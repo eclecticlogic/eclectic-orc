@@ -58,7 +58,7 @@ columnChar(schemaColumn, var, val, loc) ::= <<
 >>
 
 columnDate(schemaColumn, var, val, loc) ::= <<
-    <if(schemaColumn.typeLocalDate)>
+    <if(schemaColumn.typeInfo.typeLocalDate)>
         <var>.vector[<loc>] = <val>.toEpochDay();
     <else>
         <var>.vector[<loc>] = java.time.Instant.ofEpochMilli(<val>.getTime()).atZone(java.time.ZoneId.systemDefault()).toLocalDate().toEpochDay();
@@ -86,13 +86,12 @@ columnInt(schemaColumn, var, val, loc) ::= <<
 >>
 
 columnList(schemaColumn, var, val, loc) ::= <<
-    java.util.List list = <val>;
     <var>.offsets[<loc>] = <var>.childCount;
-    <var>.lengths[<loc>] = list.size();
-    <var>.childCount += list.size();
-    for (int i = 0; i \< list.size(); i++) {
+    <var>.lengths[<loc>] = <val>.size();
+    <var>.childCount += <val>.size();
+    for (int i = 0; i \< <val>.size(); i++) {
         int location = <var>.offsets[<loc>] + i;
-        <schemaColumn.complexType.listChild.columnClassType.name> listElement = (<schemaColumn.complexType.listChild.columnClassType.name>)list.get(i);
+        <schemaColumn.complexType.listChild.columnClassType.name> listElement = (<schemaColumn.complexType.listChild.columnClassType.name>)<val>.get(i);
         <schemaColumn.complexType.listChild.VectorClassName> childVector = (<schemaColumn.complexType.listChild.VectorClassName>)<var>.child;
         <(schemaColumn.complexType.listChild.typeInfo.templateNameColumnSetter)(schemaColumn.complexType.listChild, "childVector", "listElement", "location")>
     }
@@ -115,8 +114,10 @@ columnString(schemaColumn, var, val, loc) ::= <<
 >>
 
 columnTimestamp(schemaColumn, var, val, loc) ::= <<
-    <if(schemaColumn.typeZonedDateTime)>
-        <var>.set(<loc>, java.util.Date.from(<val>.toInstant()));
+    <if(schemaColumn.typeInfo.typeZonedDateTime)>
+        <var>.set(<loc>, java.sql.Timestamp.from(<val>.toInstant()));
+    <elseif(schemaColumn.typeInfo.typeDateTime)>
+        <var>.set(<loc>, new java.sql.Timestamp(<val>.getTime()));
     <else>
         <var>.set(<loc>, <val>);
     <endif>

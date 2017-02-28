@@ -19,8 +19,10 @@ package com.eclecticlogic.orc.impl.schema;
 import com.eclecticlogic.orc.impl.bootstrap.GeneratorUtil;
 import org.apache.orc.TypeDescription;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.Date;
 
 /**
  * Created by kabram on 2/28/17.
@@ -137,6 +139,11 @@ public class TypeInfo {
 
     public boolean isTypeZonedDateTime() {
         return ZonedDateTime.class.isAssignableFrom(genInfo.getColumnClassType());
+    }
+
+
+    public boolean isTypeDateTime() {
+        return Date.class.isAssignableFrom(genInfo.getColumnClassType());
     }
 
 
