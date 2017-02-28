@@ -16,31 +16,21 @@
 
 package com.eclecticlogic.orc;
 
-import java.math.BigDecimal;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Created by kabram
+ * Created by kabram on 2/28/17.
  */
-public class Graduate extends Student {
-
-    private String major;
-    private BigDecimal allowance;
-
-
-    public String getMajor() {
-        return major;
-    }
-
-    public void setMajor(String major) {
-        this.major = major;
-    }
-
-    @Orc(precision = 10, scale = 5)
-    public BigDecimal getAllowance() {
-        return allowance;
-    }
-
-    public void setAllowance(BigDecimal allowance) {
-        this.allowance = allowance;
-    }
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+@Inherited
+public @interface OrcConverter {
+    /**
+     * @return Converter class to use for type-conversion.
+     */
+    Class<? extends Converter> value();
 }

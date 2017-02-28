@@ -1,0 +1,36 @@
+methodSpecialCaseSetup(list) ::= <<
+    protected void specialCaseSetup() {
+        <list:specialCaseListInstruction()>
+    }
+>>
+
+specialCaseListInstruction(schemaColumn) ::= <<
+    {
+        <schemaColumn.vectorClassName> vector = (<schemaColumn.vectorClassName>)vectorizedRowBatch.cols[<schemaColumn.columnIndex>];
+        <schemaColumn.complexType.listChild.vectorClassName> child = (<schemaColumn.complexType.listChild.vectorClassName>)vector.child;
+        int newLength = child.isNull.length * <schemaColumn.complexType.averageListSize>;
+        child.isNull = new boolean[newLength];
+        <(schemaColumn.complexType.listChild.complexType.templateNameListReinit)(schemaColumn, "child", "newLength")>
+    }
+>>
+
+initBytesList(schemaColumn, val, len) ::= <<
+    <val>.vector = new byte[<len>][];
+>>
+
+initLongList(schemaColumn, val, len) ::= <<
+    <val>.vector = new long[<len>];
+>>
+
+initDoubleList(schemaColumn, val, len) ::= <<
+    <val>.vector = new double[<len>];
+>>
+
+initDecimalList(schemaColumn, val, len) ::= <<
+    <val>.vector = new HiveDecimalWritable[<len>];
+>>
+
+initTimestampList(schemaColumn, val, len) ::= <<
+    <val>.time = new long[<len>];
+    <val>.nanos = new int[<len>];
+>>

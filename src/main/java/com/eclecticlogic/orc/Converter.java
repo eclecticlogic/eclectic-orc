@@ -14,21 +14,16 @@
  * limitations under the License.
  */
 
-package com.eclecticlogic.orc.impl;
-
-import com.eclecticlogic.orc.Schema;
-import com.eclecticlogic.orc.impl.schema.SchemaColumn;
-
-import java.lang.reflect.Method;
+package com.eclecticlogic.orc;
 
 /**
- * Created by kabram
+ * Converts from a user-type U to an orc-compatible type T.
+ * @param <U> user-data type
+ * @param <T> converted orc-compatible type
  */
-public interface SchemaSpi<T> extends Schema<T> {
+public interface Converter<U, T> {
 
-    Class<T> getSchemaClass();
+    Class<T> getConvertedClass();
 
-    SchemaColumn compile();
-
-    void add(Method method);
+    T convert(U instance);
 }

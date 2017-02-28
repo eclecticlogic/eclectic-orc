@@ -32,10 +32,12 @@ public class PropertyInterceptor<T> implements MethodInterceptor {
     private final SchemaSpi<T> schema;
     private final ProxyManager proxyManager;
 
+
     public PropertyInterceptor(ProxyManager proxyManager, SchemaSpi<T> schema) {
         this.schema = schema;
         this.proxyManager = proxyManager;
     }
+
 
     @Override
     public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
@@ -44,12 +46,12 @@ public class PropertyInterceptor<T> implements MethodInterceptor {
     }
 
 
+    @SuppressWarnings("unchecked")
     Object getReturnValue(Method method) {
         Class<?> returnType = method.getReturnType();
         if (returnType.isPrimitive()) {
             return Defaults.defaultValue(method.getReturnType());
-        } else if (Modifier.isFinal(returnType.getModifiers())
-                || isDefaultConstructable(returnType)) {
+        } else if (Modifier.isFinal(returnType.getModifiers()) || !isDefaultConstructable(returnType)) {
             // Cannot sub-class a final class or a class with no default constructor and therefore cannot make a proxy
             return null;
         } else {
@@ -57,13 +59,14 @@ public class PropertyInterceptor<T> implements MethodInterceptor {
         }
     }
 
+
     /**
      * Attribution: http://stackoverflow.com/questions/27810634/how-can-i-check-a-class-has-no-arguments-constructor
+     *
      * @param clazz
      * @return true if clazz has a contructor with 0 parameters.
      */
     private boolean isDefaultConstructable(Class<?> clazz) {
-        return Stream.of(clazz.getConstructors())
-                .noneMatch((c) -> c.getParameterCount() == 0);
+        return Stream.of(clazz.getConstructors()).anyMatch((c) -> c.getParameterCount() == 0);
     }
 }

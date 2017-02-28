@@ -1,0 +1,127 @@
+methodWrite(schemaColumn, sclass) ::= <<
+    protected void write(Object inputRow) {
+        <sclass.name> datum = (<sclass.name>)inputRow;
+        <writeStruct(schemaColumn)>
+    }
+>>
+
+writeStruct(schemaColumn) ::= <<
+    <schemaColumn.complexType.structChildren:writeColumn()>
+>>
+
+writeColumn(schemaColumn) ::= <<
+    <if(schemaColumn.typeInfo.typeStruct)>
+        <writeStruct(schemaColumn)>
+    <else>
+        {
+            <schemaColumn.vectorClassName> vector = (<schemaColumn.vectorClassName>)vectorizedRowBatch.cols[<schemaColumn.columnIndex>];
+            <if(schemaColumn.typeInfo.primitive)>
+                <(schemaColumn.typeInfo.templateNameColumnSetter)(schemaColumn, "vector", {datum<schemaColumn.propertyAccess>}, "vectorizedRowBatch.size")>
+            <else>
+                if (datum<schemaColumn.propertyAccess> == null) {
+                    setNull(vector);
+                } else {
+                    <schemaColumn.columnClassType.name> datumValue = <convertedValue(schemaColumn, {datum<schemaColumn.propertyAccess>})>;
+                    <(schemaColumn.typeInfo.templateNameColumnSetter)(schemaColumn, "vector", "datumValue", "vectorizedRowBatch.size")>
+                }
+            <endif>
+        }
+    <endif>
+>>
+
+convertedValue(schemaColumn, value) ::= << <if(schemaColumn.converter)>new <schemaColumn.converter.class.name>().convert(<value>)<else><value><endif> >>
+
+columnBinary(schemaColumn, var, val, loc) ::= <<
+    // TODO
+>>
+
+columnBoolean(schemaColumn, var, val, loc) ::= <<
+    <if(schemaColumn.primitiveVector)>
+        <var>.vector[<loc>] = <val>.<schemaColumn.typeInfo.primitiveConversionMethod> ? 1 : 0;
+    <else>
+        <var>.vector[<loc>] = <val> ? 1 : 0;
+    <endif>
+>>
+
+columnByte(schemaColumn, var, val, loc) ::= <<
+    <columnLong(schemaColumn, var, val, loc)>
+>>
+
+columnChar(schemaColumn, var, val, loc) ::= <<
+    byte[] charArray = new byte[1];
+    <if(schemaColumn.primitiveVector)>
+        charArray[0] = <val>.<schemaColumn.typeInfo.primitiveConversionMethod>;
+    <else>
+        charArray[0] = <val>;
+    <endif>
+    <var>.setVal(<loc>, charArray);
+>>
+
+columnDate(schemaColumn, var, val, loc) ::= <<
+    <if(schemaColumn.typeLocalDate)>
+        <var>.vector[<loc>] = <val>.toEpochDay();
+    <else>
+        <var>.vector[<loc>] = java.time.Instant.ofEpochMilli(<val>.getTime()).atZone(java.time.ZoneId.systemDefault()).toLocalDate().toEpochDay();
+    <endif>
+>>
+
+columnDecimal(schemaColumn, var, val, loc) ::= <<
+    <var>.set(<loc>, org.apache.hadoop.hive.common.type.HiveDecimal.create(<val>, false));
+>>
+
+columnDouble(schemaColumn, var, val, loc) ::= <<
+    <if(schemaColumn.primitiveVector)>
+        <var>.vector[<loc>] = <val>.<schemaColumn.typeInfo.primitiveConversionMethod>;
+    <else>
+        <var>.vector[<loc>] = <val>;
+    <endif>
+>>
+
+columnFloat(schemaColumn, var, val, loc) ::= <<
+    <columnDouble(schemaColumn, var, val, loc)>
+>>
+
+columnInt(schemaColumn, var, val, loc) ::= <<
+    <columnLong(schemaColumn, var, val, loc)>
+>>
+
+columnList(schemaColumn, var, val, loc) ::= <<
+    java.util.List list = <val>;
+    <var>.offsets[<loc>] = <var>.childCount;
+    <var>.lengths[<loc>] = list.size();
+    <var>.childCount += list.size();
+    for (int i = 0; i \< list.size(); i++) {
+        int location = <var>.offsets[<loc>] + i;
+        <schemaColumn.complexType.listChild.columnClassType.name> listElement = (<schemaColumn.complexType.listChild.columnClassType.name>)list.get(i);
+        <schemaColumn.complexType.listChild.VectorClassName> childVector = (<schemaColumn.complexType.listChild.VectorClassName>)<var>.child;
+        <(schemaColumn.complexType.listChild.typeInfo.templateNameColumnSetter)(schemaColumn.complexType.listChild, "childVector", "listElement", "location")>
+    }
+>>
+
+columnLong(schemaColumn, var, val, loc) ::= <<
+    <if(schemaColumn.primitiveVector)>
+        <var>.vector[<loc>] = <val>.<schemaColumn.typeInfo.primitiveConversionMethod>;
+    <else>
+        <var>.vector[<loc>] = <val>;
+    <endif>
+>>
+
+columnShort(schemaColumn, var, val, loc) ::= <<
+    <columnLong(schemaColumn, var, val, loc)>
+>>
+
+columnString(schemaColumn, var, val, loc) ::= <<
+    <var>.setVal(<loc>, <val>.getBytes());
+>>
+
+columnTimestamp(schemaColumn, var, val, loc) ::= <<
+    <if(schemaColumn.typeZonedDateTime)>
+        <var>.set(<loc>, java.util.Date.from(<val>.toInstant()));
+    <else>
+        <var>.set(<loc>, <val>);
+    <endif>
+>>
+
+columnVarchar(schemaColumn, var, val, loc) ::= <<
+    <columnString(schemaColumn, var, val, loc)>
+>>

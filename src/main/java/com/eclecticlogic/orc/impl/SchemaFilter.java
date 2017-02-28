@@ -19,6 +19,11 @@ package com.eclecticlogic.orc.impl;
 import net.sf.cglib.proxy.CallbackFilter;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import static java.util.stream.Collectors.*;
 
 /**
  * Filter to decide whether to intercept the method or not.
@@ -26,15 +31,28 @@ import java.lang.reflect.Method;
  */
 public class SchemaFilter<T> implements CallbackFilter {
 
-    private final ProxyManager<T> proxyManager;
+    private final Class<T> clz;
+    private final Set<Method> allowedMethods;
+    private static final Set<String> disallowed = new HashSet(Arrays.asList("getClass", "notify", "wait", "notifyAll"));
 
-    public SchemaFilter(ProxyManager<T> proxyManager) {
-        this.proxyManager = proxyManager;
+    public SchemaFilter(Class<T> clz) {
+        this.clz = clz;
+        allowedMethods = Arrays.stream(clz.getMethods()) //
+                // No parameters
+                .filter(it -> it.getParameterCount() == 0) //
+                // Not void return type
+                .filter(it -> !it.getReturnType().isAssignableFrom(Void.class)) //
+                .filter(it -> !disallowed.contains(it.getName())) //
+                // Filter out groovy specific meta-methods. Primitives and arrays don't have a package name!
+                .filter(it -> it.getReturnType().isPrimitive() || //
+                        it.getReturnType().isArray() || //
+                        !it.getReturnType().getPackage().getName().contains("groovy"))
+                .collect(toSet());
     }
 
 
     @Override
     public int accept(Method method) {
-        return proxyManager.isGetter(method) ? 0 : 1;
+        return allowedMethods.contains(method) ? 0 : 1;
     }
 }

@@ -16,12 +16,16 @@
 
 package com.eclecticlogic.orc.impl
 
+import com.eclecticlogic.orc.Course
 import com.eclecticlogic.orc.Graduate
 import com.eclecticlogic.orc.Factory
 import com.eclecticlogic.orc.OrcWriter
 import com.eclecticlogic.orc.Schema
+import com.eclecticlogic.orc.Teacher
 import org.apache.hadoop.fs.Path
 import org.testng.annotations.Test
+
+import java.time.YearMonth
 
 /**
  * Created by kabram
@@ -29,16 +33,45 @@ import org.testng.annotations.Test
 @Test
 class TestBootstrap {
 
-    void testStringTemplate() {
+    void testOrcWriting() {
         Schema schema = Factory.createSchema(Graduate)
                 .column() {it.name}
                 .column() {it.age}
                 .column('money') {it.allowance }
+                .column('subjects') {it.subjects}
+                .column('gpa') {it.grades}
+                .column('subject') {it.course.name}
+                .column('teacher') {it.course.teacher.name}
+                .column('tenured') {it.course.teacher.tenure}
+                .column('advisor') {it.mycoursework().teacher.name}
+
         OrcWriter writer = Factory.createWriter(schema)
         List<Graduate> list = []
-        list << new Graduate(name: 'abc', age: 10, allowance: 150.0)
-        list << new Graduate(name: 'def', age: 20, allowance: 250.0)
-        list << new Graduate(name: 'aaa', age: 30, allowance: 350.0)
+        list << new Graduate(name: 'abc', age: 10, allowance: 150.0).with {
+            it.subjects << 'english'
+            it.subjects << 'history'
+            it.subjects << 'math'
+            it.grades << 2L
+            it.grades << 3L
+            it.grades << 4L
+            it.subjectGrade = 'A'
+            it.course = new Course(name: 'Mathematics', teacher: new Teacher(name: 'John Brewer'))
+            it.graduationDate = YearMonth.of(2020, 12)
+            return it
+        }
+        list << new Graduate(name: 'def', age: 20, allowance: 250.0).with {
+            it.subjects << 'math'
+            it.subjects << 'english'
+            it.subjects << 'history'
+            it.grades << 4L
+            it.grades << 5L
+            it.grades << 5L
+            it.subjectGrade = 'A'
+            it.graduationDate = YearMonth.of(2020, 12)
+            it.course = new Course(name: 'Physics', teacher: new Teacher(name: 'Feynman', tenure: true))
+            return it
+        }
+        list << new Graduate(name: 'aaa', age: 30, allowance: 350.0, course: new Course(name: 'English', teacher: new Teacher(name: 'Brown')))
         Path path = new Path('/home/kabram/temp/dp/graduate.orc')
         writer.write(path, list)
     }

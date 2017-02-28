@@ -1,3 +1,0 @@
-columnBoolean(schemaType) ::= <<
-    <columnLong(schemaType)>
->>

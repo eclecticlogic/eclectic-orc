@@ -19,12 +19,22 @@ package com.eclecticlogic.orc.impl.bootstrap;
 import com.eclecticlogic.orc.OrcWriter;
 import com.eclecticlogic.orc.impl.AbstractOrcWriter;
 import com.eclecticlogic.orc.impl.SchemaSpi;
-import com.eclecticlogic.orc.impl.schema.SchemaType;
-import javassist.*;
+import com.eclecticlogic.orc.impl.schema.SchemaColumn;
+import javassist.CannotCompileException;
+import javassist.ClassClassPath;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtNewMethod;
+import javassist.NotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
-import org.stringtemplate.v4.STGroupDir;
+import org.stringtemplate.v4.STGroupFile;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -39,12 +49,14 @@ public class OrcWriterBootstrap {
     // This is used to prevent linkage error due to concurrent creation of classes.
     private static AtomicInteger extractorNameSuffix = new AtomicInteger();
 
+    private static Logger logger = LoggerFactory.getLogger(OrcWriterBootstrap.class);
+
 
     @SuppressWarnings("unchecked")
     public static <T> OrcWriter<T> create(SchemaSpi<T> schema) {
         Class<T> clz = schema.getSchemaClass();
         writersByClass.computeIfAbsent(clz, (cz) -> createWriter(schema));
-        return (OrcWriter<T>)writersByClass.get(clz);
+        return (OrcWriter<T>) writersByClass.get(clz);
     }
 
 
@@ -52,14 +64,15 @@ public class OrcWriterBootstrap {
     static <T> OrcWriter<T> createWriter(SchemaSpi<T> schema) {
         ClassPool pool = ClassPool.getDefault();
         pool.insertClassPath(new ClassClassPath(AbstractOrcWriter.class));
-        CtClass cc = pool.makeClass(ORC_WRITER_PACKAGE + schema.getSchemaClass().getSimpleName()
-                + "$OrcWriter_" + extractorNameSuffix.incrementAndGet());
-        SchemaType schemaType = schema.compile();
+        CtClass cc = pool.makeClass(ORC_WRITER_PACKAGE + schema.getSchemaClass().getSimpleName() + "$OrcWriter_" + extractorNameSuffix
+                .incrementAndGet());
+        SchemaColumn schemaColumn = schema.compile();
         try {
             cc.setSuperclass(pool.get(AbstractOrcWriter.class.getName()));
 
-            cc.addMethod(CtNewMethod.make(getTypeDescriptionBody(schemaType), cc));
-            cc.addMethod(CtNewMethod.make(getWriteBody(schemaType, schema.getSchemaClass()), cc));
+            cc.addMethod(CtNewMethod.make(getTypeDescriptionBody(schemaColumn), cc));
+            cc.addMethod(CtNewMethod.make(getSpecialCaseSetupBody(schemaColumn), cc));
+            cc.addMethod(CtNewMethod.make(getWriteBody(schemaColumn, schema.getSchemaClass()), cc));
         } catch (CannotCompileException | NotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -72,24 +85,46 @@ public class OrcWriterBootstrap {
     }
 
 
-    static String getTypeDescriptionBody(SchemaType schemaType) {
-        STGroup group = new STGroupDir("eclectic/orc/template");
-        ST st = group.getInstanceOf("schemaMethod");
-
-        st.add("schemaType", schemaType);
+    static String getTypeDescriptionBody(SchemaColumn schemaColumn) {
+        STGroup group = new STGroupFile("eclectic/orc/template/methodGetTypeDescription.stg");
+        ST st = group.getInstanceOf("methodGetTypeDescription");
+        st.add("schemaColumn", schemaColumn);
         String s = st.render();
-        System.out.println(s);
+        logger.debug(s);
         return s;
     }
 
 
-    static String getWriteBody(SchemaType schemaType, Class<?> schemaClass) {
-        STGroup group = new STGroupDir("eclectic/orc/template");
-        ST st = group.getInstanceOf("writeMethod");
-        st.add("schemaType", schemaType);
+    static String getSpecialCaseSetupBody(SchemaColumn schemaColumn) {
+        STGroup group = new STGroupFile("eclectic/orc/template/methodSpecialCaseSetup.stg");
+        // Special case setup is needed for lists to adjust list child vector size.
+        List<SchemaColumn> listSchemaTypes = new ArrayList<>();
+        Stack<SchemaColumn> structTypes = new Stack<>();
+        structTypes.push(schemaColumn);
+        while (!structTypes.isEmpty()) {
+            for (SchemaColumn child : structTypes.pop().getComplexType().getStructChildren()) {
+                if (child.getTypeInfo().isTypeStruct()) {
+                    structTypes.push(child);
+                } else if (child.getTypeInfo().isTypeList()) {
+                    listSchemaTypes.add(child);
+                }
+            }
+        }
+        ST st = group.getInstanceOf("methodSpecialCaseSetup");
+        st.add("list", listSchemaTypes);
+        String s = st.render();
+        logger.debug(s);
+        return s;
+    }
+
+
+    static String getWriteBody(SchemaColumn schemaColumn, Class<?> schemaClass) {
+        STGroup group = new STGroupFile("eclectic/orc/template/methodWrite.stg");
+        ST st = group.getInstanceOf("methodWrite");
+        st.add("schemaColumn", schemaColumn);
         st.add("sclass", schemaClass);
         String s = st.render();
-        System.out.println(s);
+        logger.debug(s);
         return s;
     }
 }

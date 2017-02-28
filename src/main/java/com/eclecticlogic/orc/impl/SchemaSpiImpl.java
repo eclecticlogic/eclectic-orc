@@ -17,7 +17,9 @@
 package com.eclecticlogic.orc.impl;
 
 import com.eclecticlogic.orc.Schema;
-import com.eclecticlogic.orc.impl.schema.SchemaType;
+import com.eclecticlogic.orc.impl.bootstrap.GeneratorUtil;
+import com.eclecticlogic.orc.impl.schema.ListChildSchemaColumn;
+import com.eclecticlogic.orc.impl.schema.SchemaColumn;
 import org.apache.orc.TypeDescription.Category;
 
 import java.lang.reflect.Method;
@@ -33,14 +35,13 @@ public class SchemaSpiImpl<T> implements SchemaSpi<T> {
 
     final Class<T> schemaClz;
     final T proxy;
-    final ProxyManager<T> proxyManager = new ProxyManager<>(this);
-    final List<Column> schemaColumns = new ArrayList<>();
-    SchemaType currentSchemaType;
-
+    final List<Column> columns = new ArrayList<>();
+    SchemaColumn currentSchemaColumn;
+    String lastAccessedProperty;
 
     public SchemaSpiImpl(Class<T> clz) {
         schemaClz = clz;
-        proxy = proxyManager.generate(clz);
+        proxy = new ProxyManager<>(this).generate(clz);
     }
 
 
@@ -52,7 +53,7 @@ public class SchemaSpiImpl<T> implements SchemaSpi<T> {
 
     @Override
     public Schema<T> column(Function<T, Object> columnFunction) {
-        return column(() -> currentSchemaType.getLastAccessedProperty(), columnFunction);
+        return column(() -> lastAccessedProperty, columnFunction);
     }
 
 
@@ -66,31 +67,36 @@ public class SchemaSpiImpl<T> implements SchemaSpi<T> {
         Column column = new Column();
         column.setNameFunction(nameFunction);
         column.setColumnFunction(columnFunction);
-        schemaColumns.add(column);
+        columns.add(column);
         return this;
     }
 
 
     @Override
-    public SchemaType compile() {
-        SchemaType struct = new SchemaType();
-        for (Column<T> column : schemaColumns) {
-            currentSchemaType = new SchemaType();
+    public SchemaColumn compile() {
+        SchemaColumn struct = new SchemaColumn();
+        for (Column<T> column : columns) {
+            lastAccessedProperty = null;
+            currentSchemaColumn = new SchemaColumn();
             column.getColumnFunction().apply(proxy);
-            currentSchemaType.setName(column.getNameFunction().get());
-            struct.getStructChildren().add(currentSchemaType);
+            currentSchemaColumn.getTypeDescription().setName(column.getNameFunction().get());
+            struct.getComplexType().getStructChildren().add(currentSchemaColumn);
+            // Special types
+            if (currentSchemaColumn.getCategory() == Category.LIST) {
+                currentSchemaColumn.getComplexType().setListChild(new ListChildSchemaColumn(currentSchemaColumn));
+            }
         }
-        computeColumnIndices(struct.getStructChildren(), 0);
+        computeColumnIndices(struct.getComplexType().getStructChildren(), 0);
         return struct;
     }
 
 
-    int computeColumnIndices(List<SchemaType> schemaTypes, int index) {
-        for (SchemaType type : schemaTypes) {
-            if (type.getCategory() == Category.STRUCT) {
-                index = computeColumnIndices(type.getStructChildren(), index);
+    int computeColumnIndices(List<SchemaColumn> schemaColumns, int index) {
+        for (SchemaColumn column : schemaColumns) {
+            if (column.getCategory() == Category.STRUCT) {
+                index = computeColumnIndices(column.getComplexType().getStructChildren(), index);
             } else {
-                type.setColumnIndex(index++);
+                column.setColumnIndex(index++);
             }
         }
         return index;
@@ -99,8 +105,8 @@ public class SchemaSpiImpl<T> implements SchemaSpi<T> {
 
     @Override
     public void add(Method accessor) {
-        currentSchemaType.getAccessorMethods().add(accessor);
-        currentSchemaType.setLastAccessedProperty(proxyManager.getPropertyFor(accessor).getName());
+        currentSchemaColumn.getAccessorMethods().add(accessor);
+        lastAccessedProperty = GeneratorUtil.getPropertyName(accessor);
     }
 
 

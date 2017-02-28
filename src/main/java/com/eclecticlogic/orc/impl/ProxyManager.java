@@ -20,23 +20,17 @@ import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.NoOp;
 
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Method;
-import java.util.Stack;
-
 /**
  * Created by kabram
  */
 public class ProxyManager<T> {
     final SchemaSpi<T> schema;
-    final Stack<PropertyContainer> containers = new Stack<>();
 
     public ProxyManager(SchemaSpi<T> schema) {
         this.schema = schema;
     }
 
     public T generate(Class<T> clz) {
-        containers.push(new PropertyContainer(clz));
         return enhance(clz);
     }
 
@@ -45,17 +39,8 @@ public class ProxyManager<T> {
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(clz);
         enhancer.setCallbacks(new Callback[]{new PropertyInterceptor<>(this, schema), NoOp.INSTANCE});
-        enhancer.setCallbackFilter(new SchemaFilter<>(this));
+        enhancer.setCallbackFilter(new SchemaFilter<>(clz));
         return (T) enhancer.create();
     }
 
-
-    public boolean isGetter(Method method) {
-        return containers.peek().isGetter(method);
-    }
-
-
-    public PropertyDescriptor getPropertyFor(Method method) {
-        return containers.peek().getPropertyFor(method);
-    }
 }

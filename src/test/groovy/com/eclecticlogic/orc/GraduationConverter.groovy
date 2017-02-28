@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
-package com.eclecticlogic.orc.impl;
+package com.eclecticlogic.orc
 
-import com.eclecticlogic.orc.Schema;
-import com.eclecticlogic.orc.impl.schema.SchemaColumn;
-
-import java.lang.reflect.Method;
+import java.time.LocalDate
+import java.time.YearMonth
 
 /**
- * Created by kabram
+ * Created by kabram on 2/28/17.
  */
-public interface SchemaSpi<T> extends Schema<T> {
+class GraduationConverter implements Converter<YearMonth, Integer> {
 
-    Class<T> getSchemaClass();
+    @Override
+    Class<Integer> getConvertedClass() {
+        return Integer
+    }
 
-    SchemaColumn compile();
-
-    void add(Method method);
+    @Override
+    Integer convert(YearMonth instance) {
+        return instance.year * 100 + instance.month
+    }
 }

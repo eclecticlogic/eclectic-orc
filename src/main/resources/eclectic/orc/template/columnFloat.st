@@ -1,3 +1,0 @@
-columnFloat(schemaType) ::= <<
-    <columnDouble(schemaType)>
->>

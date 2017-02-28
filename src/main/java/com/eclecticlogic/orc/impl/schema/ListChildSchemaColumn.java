@@ -16,38 +16,35 @@
 
 package com.eclecticlogic.orc.impl.schema;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.eclecticlogic.orc.OrcList;
+
+import java.lang.reflect.Method;
 
 /**
  * Created by kabram
  */
-public class SchemaType extends BaseSchemaType {
+public class ListChildSchemaColumn extends SchemaColumn {
 
-    protected List<SchemaType> structChildren = new ArrayList<>();
-    protected SchemaType listChild;
-    protected SchemaType mapKey;
-    protected SchemaType mapValue;
+    private final SchemaColumn parent;
 
 
-    public List<SchemaType> getStructChildren() {
-        return structChildren;
+    public ListChildSchemaColumn(SchemaColumn parent) {
+        this.parent = parent;
     }
 
 
-    public SchemaType getListChild() {
-        return listChild;
+    @Override
+    public Method getLastAccessorMethod() {
+        return parent.getLastAccessorMethod();
     }
 
 
-    public SchemaType getMapKey() {
-        return mapKey;
+    @Override
+    public Class<?> getColumnClassType() {
+        OrcList orcList = getLastAccessorMethod().getDeclaredAnnotation(OrcList.class);
+        if (orcList == null) {
+            throw new RuntimeException("@OrcList annotation must be present for list column types.");
+        }
+        return orcList.entryType();
     }
-
-
-    public SchemaType getMapValue() {
-        return mapValue;
-    }
-
-
 }

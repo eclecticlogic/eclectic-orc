@@ -1,3 +1,0 @@
-columnInt(schemaType) ::= <<
-    <columnLong(schemaType)>
->>

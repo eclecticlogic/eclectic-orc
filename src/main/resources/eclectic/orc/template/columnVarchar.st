@@ -1,3 +1,0 @@
-columnVarchar(schemaType) ::= <<
-    <columnString(schemaType)>
->>

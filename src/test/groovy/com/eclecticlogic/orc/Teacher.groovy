@@ -14,21 +14,12 @@
  * limitations under the License.
  */
 
-package com.eclecticlogic.orc.impl;
-
-import com.eclecticlogic.orc.Schema;
-import com.eclecticlogic.orc.impl.schema.SchemaColumn;
-
-import java.lang.reflect.Method;
+package com.eclecticlogic.orc
 
 /**
- * Created by kabram
+ * Created by kabram on 2/28/17.
  */
-public interface SchemaSpi<T> extends Schema<T> {
-
-    Class<T> getSchemaClass();
-
-    SchemaColumn compile();
-
-    void add(Method method);
+class Teacher {
+    String name;
+    boolean tenure;
 }

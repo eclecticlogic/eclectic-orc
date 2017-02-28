@@ -87,6 +87,7 @@ public abstract class AbstractOrcWriter<T> implements OrcWriter<T> {
         writerOptions.setSchema(schema);
         Writer writer = OrcFile.createWriter(path, writerOptions);
         vectorizedRowBatch = schema.createRowBatch(batchSize);
+        specialCaseSetup();
         for (T datum : data) {
             if (vectorizedRowBatch.size == vectorizedRowBatch.getMaxSize()) {
                 writer.addRowBatch(vectorizedRowBatch);
@@ -101,18 +102,34 @@ public abstract class AbstractOrcWriter<T> implements OrcWriter<T> {
     }
 
 
-    protected abstract TypeDescription getTypeDescription();
-
-
+    /**
+     * Helper utility to set the value of the current property to null in the vector.
+     * @param vector
+     */
     protected void setNull(ColumnVector vector) {
         vector.isNull[vectorizedRowBatch.size] = true;
         vector.noNulls = false;
     }
 
 
-    protected void specialCaseSetup() {
-        // TODO: Setup of list child vector size.
-    }
+    /**
+     * @return The schema for the orc file as computed by the property access definitions. The implementation is generated dynamically at
+     * runtime using javassist.
+     */
+    protected abstract TypeDescription getTypeDescription();
 
+
+    /**
+     * Hook to setup special cases such as the modification of list child to support the full flattened size
+     * (rows x average list column size per row)
+     */
+    protected abstract void specialCaseSetup();
+
+
+    /**
+     * Routine that actually populates one row of the list into the vectorized row batch. The implementation of this is generated
+     * dynamically at runtime using javassist.
+     * @param datum Object instance to write.
+     */
     protected abstract void write(T datum);
 }
