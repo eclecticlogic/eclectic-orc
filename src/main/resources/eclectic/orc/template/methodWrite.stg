@@ -20,8 +20,8 @@ writeColumn(schemaColumn) ::= <<
     <endif>
 >>
 
-<! This template unwinds a series of calls checking for null value in each stage to get the final value. !>
 nullSafeChainAccess(schemaColumn, method, methods, var) ::= <<
+    <! This template unwinds a series of calls checking for null value in each stage to get the final value. !>
     <method.returnType.name> <schemaColumn.template.newTempVariable> = <var>.<method.name>();
     <if(methods)>
         if (<schemaColumn.template.tempVariable> == null) {

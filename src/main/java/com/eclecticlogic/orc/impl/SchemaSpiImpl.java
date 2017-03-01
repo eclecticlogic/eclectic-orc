@@ -81,8 +81,10 @@ public class SchemaSpiImpl<T> implements SchemaSpi<T> {
             column.getColumnFunction().apply(proxy);
             currentSchemaColumn.getTypeDescription().setName(column.getNameFunction().get());
             struct.getComplexType().getStructChildren().add(currentSchemaColumn);
-            // Special types
-            if (currentSchemaColumn.getCategory() == Category.LIST) {
+            // Special types. Note: The enum handler alters the category (which is cached) and therefore must be called first.
+            if (Enum.class.isAssignableFrom(currentSchemaColumn.getColumnClassType())) {
+                currentSchemaColumn.setupEnumHandling();
+            } else if (currentSchemaColumn.getCategory() == Category.LIST) {
                 currentSchemaColumn.getComplexType().setListChild(new ListChildSchemaColumn(currentSchemaColumn));
             }
         }

@@ -24,6 +24,9 @@ import java.time.YearMonth
  */
 public class Graduate extends Student {
 
+    Level level
+    Club club
+    Power power;
     private String major;
     private BigDecimal allowance;
     private List<String> subjects = new ArrayList<>();

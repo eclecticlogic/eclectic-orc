@@ -41,6 +41,9 @@ class TestBootstrap {
 
     void testOrcWriting() {
         Schema schema = Factory.createSchema(Graduate)
+                .column { it.level }
+                .column {it.club }
+                .column { it.power }
                 .column { it.name }
                 .column { it.age }
                 .column('money') { it.allowance }

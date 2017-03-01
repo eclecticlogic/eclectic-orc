@@ -30,10 +30,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 
 /**
  * Created by kabram on 2/27/17.
@@ -72,15 +72,14 @@ public class AbstractSchemaColumn implements GenInfo {
     @Override
     public Category getCategory() {
         if (_category == null) {
-            _category = _getCategory();
+            _category = _getCategory(getColumnClassType());
         }
         return _category;
     }
 
 
-    private Category _getCategory() {
-        // TODO: Support converter definition.
-        Class<?> clz = getColumnClassType();
+    @SuppressWarnings("unchecked")
+    private Category _getCategory(Class<?> clz) {
         if (clz == null) {
             return Category.STRUCT;
         } else if (GeneratorUtil.getCategoryByType().containsKey(clz)) {
@@ -131,4 +130,24 @@ public class AbstractSchemaColumn implements GenInfo {
     }
 
 
+    /**
+     * Look for orc annotation in any of the methods. If found, we add that to the accessor methods. Otherwise we add name() method to
+     * the accessor methods. This is required because we cannot proxy an enum class as it is final.
+     * @precondition: The current return type is an enum.
+     */
+    public void setupEnumHandling() {
+        Class<?> clz = getColumnClassType();
+        Optional<Method> annotatedMethod = Arrays.stream(clz.getDeclaredMethods()) //
+                .filter(it -> it.isAnnotationPresent(Orc.class)) //
+                .findFirst();
+        if (annotatedMethod.isPresent()) {
+            getAccessorMethods().add(annotatedMethod.get());
+        } else {
+            try {
+                getAccessorMethods().add(clz.getMethod("name"));
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }

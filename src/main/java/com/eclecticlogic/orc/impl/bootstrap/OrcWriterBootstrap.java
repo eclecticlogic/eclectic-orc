@@ -90,7 +90,7 @@ public class OrcWriterBootstrap {
         ST st = group.getInstanceOf("methodGetTypeDescription");
         st.add("schemaColumn", schemaColumn);
         String s = st.render();
-        logger.debug(s);
+        logger.trace(s);
         return s;
     }
 
@@ -113,7 +113,7 @@ public class OrcWriterBootstrap {
         ST st = group.getInstanceOf("methodSpecialCaseSetup");
         st.add("list", listSchemaTypes);
         String s = st.render();
-        logger.debug(s);
+        logger.trace(s);
         return s;
     }
 
@@ -124,7 +124,7 @@ public class OrcWriterBootstrap {
         st.add("schemaColumn", schemaColumn);
         st.add("sclass", schemaClass);
         String s = st.render();
-        logger.debug(s);
+        logger.trace(s);
         return s;
     }
 }
