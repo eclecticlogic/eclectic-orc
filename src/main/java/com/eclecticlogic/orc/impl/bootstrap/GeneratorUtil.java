@@ -16,6 +16,7 @@
 
 package com.eclecticlogic.orc.impl.bootstrap;
 
+import com.eclecticlogic.orc.Orc;
 import org.apache.hadoop.hive.ql.exec.vector.BytesColumnVector;
 import org.apache.hadoop.hive.ql.exec.vector.ColumnVector;
 import org.apache.hadoop.hive.ql.exec.vector.DecimalColumnVector;
@@ -33,6 +34,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.apache.orc.TypeDescription.Category.*;
 
@@ -270,5 +272,14 @@ public class GeneratorUtil {
             propertyName = Character.toLowerCase(propertyName.charAt(0)) + propertyName.substring(1);
         }
         return propertyName;
+    }
+
+
+    public static Optional<Method> getAnnotatedMethodInEnum(Class<? extends Enum<?>> clz) {
+        return Arrays.stream(clz.getDeclaredMethods()) //
+                .filter(it -> it.isAnnotationPresent(Orc.class)) //
+                .filter(it -> it.getParameterCount() == 0) //
+                .filter(it -> !Void.TYPE.equals(it.getReturnType())) //
+                .findFirst();
     }
 }

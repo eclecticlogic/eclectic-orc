@@ -16,8 +16,12 @@
 
 package com.eclecticlogic.orc.impl.schema;
 
+import com.eclecticlogic.orc.Orc;
 import com.eclecticlogic.orc.impl.bootstrap.GeneratorUtil;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -58,4 +62,11 @@ public class Template {
     }
 
 
+    /**
+     * @return The method to be used to convert an enum to an orc-compatible value.
+     */
+    public String getEnumMethod() {
+        Optional<Method> annotatedMethod = GeneratorUtil.getAnnotatedMethodInEnum((Class<? extends Enum<?>>) genInfo.getColumnClassType());
+        return annotatedMethod.map(Method::getName).orElse("name");
+    }
 }

@@ -41,23 +41,24 @@ class TestBootstrap {
 
     void testOrcWriting() {
         Schema schema = Factory.createSchema(Graduate)
+//                .column { it.colors }
                 .column { it.level }
                 .column {it.club }
                 .column { it.power }
-                .column { it.name }
-                .column { it.age }
-                .column('money') { it.allowance }
-                .column('subjects') { it.subjects }
-                .column('gpa') { it.grades }
-                .column('subject') { it.course.name }
-                .column('teacher') { it.course.teacher.name }
-                .column('tenured') { it.course.teacher.tenure }
-                .column { it.course.teacher.startMonth }
-                .column('advisor') { it.mycoursework().teacher.name }
-                .column { it.courseGrades }
-                .column { it.courseAudits }
-                .column { it.courseDates }
-                .column('initiation') { it.initiationDate }
+//                .column { it.name }
+//                .column { it.age }
+//                .column('money') { it.allowance }
+//                .column('subjects') { it.subjects }
+//                .column('gpa') { it.grades }
+//                .column('subject') { it.course.name }
+//                .column('teacher') { it.course.teacher.name }
+//                .column('tenured') { it.course.teacher.tenure }
+//                .column { it.course.teacher.startMonth }
+//                .column('advisor') { it.mycoursework().teacher.name }
+//                .column { it.courseGrades }
+//                .column { it.courseAudits }
+//                .column { it.courseDates }
+//                .column('initiation') { it.initiationDate }
 
         OrcHandle handle = Factory.createWriter(schema)
         List<Graduate> list = []

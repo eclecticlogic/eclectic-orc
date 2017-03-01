@@ -30,7 +30,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -125,29 +124,27 @@ public class AbstractSchemaColumn implements GenInfo {
             }
         } else if (Iterable.class.isAssignableFrom(clz)) {
             return Category.LIST;
+        } else if (Enum.class.isAssignableFrom(clz)) {
+            return getEnumCategory((Class<? extends Enum<?>>) clz);
         }
         return Category.STRUCT;
     }
 
 
     /**
-     * Look for orc annotation in any of the methods. If found, we add that to the accessor methods. Otherwise we add name() method to
-     * the accessor methods. This is required because we cannot proxy an enum class as it is final.
-     * @precondition: The current return type is an enum.
+     * Look for orc annotation in any of the methods. If found, return a category based on the return type of that method.
+     * Otherwise we will call name() and therefore the Category is STRING.
+     * @param clz
+     * @return
      */
-    public void setupEnumHandling() {
-        Class<?> clz = getColumnClassType();
-        Optional<Method> annotatedMethod = Arrays.stream(clz.getDeclaredMethods()) //
-                .filter(it -> it.isAnnotationPresent(Orc.class)) //
-                .findFirst();
+    protected Category getEnumCategory(Class<? extends Enum<?>> clz) {
+        Optional<Method> annotatedMethod = GeneratorUtil.getAnnotatedMethodInEnum(clz);
         if (annotatedMethod.isPresent()) {
-            getAccessorMethods().add(annotatedMethod.get());
+            return _getCategory(annotatedMethod.get().getReturnType());
         } else {
-            try {
-                getAccessorMethods().add(clz.getMethod("name"));
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException(e);
-            }
+            // Assumed to be a call to name() and therefore a string
+            return Category.STRING;
         }
     }
+
 }

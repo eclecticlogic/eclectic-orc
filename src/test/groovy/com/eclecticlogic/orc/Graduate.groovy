@@ -24,6 +24,7 @@ import java.time.YearMonth
  */
 public class Graduate extends Student {
 
+    List<Color> colors
     Level level
     Club club
     Power power;
@@ -94,5 +95,11 @@ public class Graduate extends Student {
     Queue<Boolean> getCourseAudits() {
         return courseAudits
     }
+
+    @OrcCollection(entryType = Color.class, averageSize = 5)
+    List<Color> getColors() {
+        return colors
+    }
+
 
 }

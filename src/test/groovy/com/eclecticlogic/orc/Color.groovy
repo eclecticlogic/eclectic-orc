@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-package com.eclecticlogic.orc.impl
-
-import com.eclecticlogic.orc.Graduate
-import com.eclecticlogic.orc.Factory
-import org.testng.annotations.Test
+package com.eclecticlogic.orc
 
 /**
- * Created by kabram
+ * Created by kabram on 3/1/17.
  */
-//@Test
-class TestSchemaImpl {
+enum Color {
 
-    void testFieldNames() {
-        SchemaSpiImpl schema = Factory.createSchema(Graduate)
-            .column() {it.name}
-            .column() {it.age}
-            .column('money') {it.allowance }
-        schema.compile()
+    BLUE('B'), GREEN('G'), RED('R'), YELLOW('Y'), VIOLET('V'), WHITE('W');
+
+    Color(char code) {
+        this.code = code
+    }
+    private char code;
+
+    @Orc
+    char getCode() {
+        return code
     }
 }

@@ -161,6 +161,12 @@ public class TypeInfo {
 
 
     /**
+     * @return true if the underlying type is an Enum derivative.
+     */
+    public boolean isEnum() { return Enum.class.isAssignableFrom(genInfo.getColumnClassType()); }
+
+
+    /**
      * @return Returns the method that can be used on a boxed type to get the primitive type.
      */
     public String getPrimitiveConversionMethod() {

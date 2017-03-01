@@ -18,6 +18,7 @@ package com.eclecticlogic.orc.impl.schema;
 
 import com.eclecticlogic.orc.Converter;
 import com.eclecticlogic.orc.OrcConverter;
+import com.eclecticlogic.orc.impl.bootstrap.GeneratorUtil;
 import org.apache.orc.TypeDescription.Category;
 
 import java.lang.annotation.Annotation;
@@ -25,12 +26,21 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 /**
- * Created by kabram on 2/28/17.
+ * Basic interface implemented by SchemaColumn that other specialized views of the column depend on.
+ * Created by kabram
  */
 public interface GenInfo {
 
     default <A extends Annotation> A getAnnotation(Class<? extends A> clz) {
-        return getLastAccessorMethod().isAnnotationPresent(clz) ? getLastAccessorMethod().getDeclaredAnnotation(clz) : null;
+        Method theMethod = null;
+        if (Enum.class.isAssignableFrom(getColumnClassType())) {
+            // For enums, we need to get the annotation from the enum annotated method.
+            theMethod = GeneratorUtil.getAnnotatedMethodInEnum((Class<? extends Enum<?>>) getColumnClassType()) //
+                    .orElse(null);
+        } else {
+            theMethod = getLastAccessorMethod();
+        }
+        return theMethod == null ? null : theMethod.isAnnotationPresent(clz) ? theMethod.getDeclaredAnnotation(clz) : null;
     }
 
 

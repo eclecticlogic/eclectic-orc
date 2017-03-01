@@ -36,10 +36,14 @@ nullSafeChainAccess(schemaColumn, method, methods, var) ::= <<
             if (<schemaColumn.template.tempVariable> == null) {
                 setNull(vector);
             } else {
-                <(schemaColumn.template.templateNameColumnSetter)(schemaColumn, "vector", convertedValue(schemaColumn, schemaColumn.template.tempVariable), "vectorizedRowBatch.size")>
+                <(schemaColumn.template.templateNameColumnSetter)(schemaColumn, "vector", enumConvertedValue(schemaColumn, schemaColumn.template.tempVariable), "vectorizedRowBatch.size")>
             }
         <endif>
     <endif>
+>>
+
+enumConvertedValue(schemaColumn, value) ::= <<
+    <if(schemaColumn.typeInfo.enum)><value>.<schemaColumn.template.enumMethod>()<else><convertedValue(schemaColumn, value)><endif>
 >>
 
 convertedValue(schemaColumn, value) ::= << <if(schemaColumn.converter)>new <schemaColumn.converter.class.name>().convert(<value>)<else><value><endif> >>
