@@ -49,6 +49,7 @@ class TestBootstrap {
                 .column('subject') { it.course.name }
                 .column('teacher') { it.course.teacher.name }
                 .column('tenured') { it.course.teacher.tenure }
+                .column { it.course.teacher.startMonth }
                 .column('advisor') { it.mycoursework().teacher.name }
                 .column { it.courseGrades }
                 .column { it.courseAudits }
@@ -98,7 +99,7 @@ class TestBootstrap {
             it.course = new Course(name: 'Physics', teacher: new Teacher(name: 'Feynman', tenure: true))
             return it
         }
-        list << new Graduate(name: 'aaa', age: 30, allowance: 350.0, course: new Course(name: 'English', teacher: new Teacher(name: 'Brown')))
+        list << new Graduate(name: 'aaa', age: 30, allowance: 350.0)
         Path path = new Path('/home/kabram/temp/dp/graduate.orc')
         try {
             handle.open(path).write(list).close()

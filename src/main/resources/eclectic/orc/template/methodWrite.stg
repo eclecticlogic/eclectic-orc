@@ -15,17 +15,30 @@ writeColumn(schemaColumn) ::= <<
     <else>
         {
             <schemaColumn.vectorClassName> vector = (<schemaColumn.vectorClassName>)vectorizedRowBatch.cols[<schemaColumn.columnIndex>];
-            <if(schemaColumn.typeInfo.primitive)>
-                <(schemaColumn.typeInfo.templateNameColumnSetter)(schemaColumn, "vector", {datum<schemaColumn.propertyAccess>}, "vectorizedRowBatch.size")>
-            <else>
-                if (datum<schemaColumn.propertyAccess> == null) {
-                    setNull(vector);
-                } else {
-                    <schemaColumn.columnClassType.name> datumValue = <convertedValue(schemaColumn, {datum<schemaColumn.propertyAccess>})>;
-                    <(schemaColumn.typeInfo.templateNameColumnSetter)(schemaColumn, "vector", "datumValue", "vectorizedRowBatch.size")>
-                }
-            <endif>
+            <nullSafeChainAccess(schemaColumn, first(schemaColumn.accessorMethods), rest(schemaColumn.accessorMethods), "datum")>
         }
+    <endif>
+>>
+
+<! This template unwinds a series of calls checking for null value in each stage to get the final value. !>
+nullSafeChainAccess(schemaColumn, method, methods, var) ::= <<
+    <method.returnType.name> <schemaColumn.template.newTempVariable> = <var>.<method.name>();
+    <if(methods)>
+        if (<schemaColumn.template.tempVariable> == null) {
+            setNull(vector);
+        } else {
+            <nullSafeChainAccess(schemaColumn, first(methods), rest(methods), schemaColumn.template.tempVariable)>
+        }
+    <else>
+        <if(method.returnType.primitive)>
+            <(schemaColumn.template.templateNameColumnSetter)(schemaColumn, "vector", schemaColumn.template.tempVariable, "vectorizedRowBatch.size")>
+        <else>
+            if (<schemaColumn.template.tempVariable> == null) {
+                setNull(vector);
+            } else {
+                <(schemaColumn.template.templateNameColumnSetter)(schemaColumn, "vector", convertedValue(schemaColumn, schemaColumn.template.tempVariable), "vectorizedRowBatch.size")>
+            }
+        <endif>
     <endif>
 >>
 
@@ -104,7 +117,7 @@ columnList(schemaColumn, var, val, loc) ::= <<
         int location = <var>.offsets[<loc>] + i;
         <schemaColumn.complexType.listChild.columnClassType.name> listElement = (<schemaColumn.complexType.listChild.columnClassType.name>)list.get(i);
         <schemaColumn.complexType.listChild.VectorClassName> childVector = (<schemaColumn.complexType.listChild.VectorClassName>)<var>.child;
-        <(schemaColumn.complexType.listChild.typeInfo.templateNameColumnSetter)(schemaColumn.complexType.listChild, "childVector", "listElement", "location")>
+        <(schemaColumn.complexType.listChild.template.templateNameColumnSetter)(schemaColumn.complexType.listChild, "childVector", "listElement", "location")>
     }
 >>
 

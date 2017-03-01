@@ -25,16 +25,10 @@ import java.lang.reflect.Method;
  */
 public class SchemaColumn extends AbstractSchemaColumn {
 
-    private final TypeDesc typeDescription;
-    private final TypeInfo typeInfo;
-    private final ComplexType complexType;
-
-
-    public SchemaColumn() {
-        this.typeDescription = new TypeDesc(this);
-        this.typeInfo = new TypeInfo(this);
-        this.complexType = new ComplexType(this);
-    }
+    private final TypeDesc typeDescription = new TypeDesc(this);
+    private final TypeInfo typeInfo = new TypeInfo(this);
+    private final ComplexType complexType = new ComplexType(this);
+    private final Template template = new Template(this);
 
 
     public ComplexType getComplexType() {
@@ -52,12 +46,8 @@ public class SchemaColumn extends AbstractSchemaColumn {
     }
 
 
-    public String getPropertyAccess() {
-        StringBuilder builder = new StringBuilder();
-        for (Method accessorMethod : getAccessorMethods()) {
-            builder.append(".").append(accessorMethod.getName()).append("()");
-        }
-        return builder.toString();
+    public Template getTemplate() {
+        return template;
     }
 
 

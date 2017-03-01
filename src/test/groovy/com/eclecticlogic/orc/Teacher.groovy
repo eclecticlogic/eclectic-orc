@@ -16,10 +16,18 @@
 
 package com.eclecticlogic.orc
 
+import java.time.YearMonth
+
 /**
  * Created by kabram on 2/28/17.
  */
 class Teacher {
     String name;
     boolean tenure;
+    YearMonth startMonth
+
+    @OrcConverter(GraduationConverter)
+    YearMonth getStartMonth() {
+        return startMonth
+    }
 }

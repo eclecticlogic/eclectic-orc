@@ -160,11 +160,6 @@ public class TypeInfo {
     public boolean isTypeJavaCollection() { return Collection.class.isAssignableFrom(genInfo.getColumnClassType()); }
 
 
-    public String getTemplateNameColumnSetter() {
-        return GeneratorUtil.getTemplateNameColumnSetter(genInfo.getCategory());
-    }
-
-
     /**
      * @return Returns the method that can be used on a boxed type to get the primitive type.
      */
