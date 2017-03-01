@@ -72,7 +72,7 @@ public abstract class AbstractOrcWriter<T> implements OrcWriter<T> {
     }
 
     @Override
-    public void write(Path path, Iterable<T> data) throws IOException {
+    public void write(Path path, Iterable<T> data) {
         if (writerOptions == null) {
             writerOptions = OrcFile.writerOptions(configuration);
         }
@@ -86,20 +86,24 @@ public abstract class AbstractOrcWriter<T> implements OrcWriter<T> {
         // Add the schema to the writer options.
         TypeDescription schema = getTypeDescription();
         writerOptions.setSchema(schema);
-        Writer writer = OrcFile.createWriter(path, writerOptions);
-        vectorizedRowBatch = schema.createRowBatch(batchSize);
-        specialCaseSetup();
-        for (T datum : data) {
-            if (vectorizedRowBatch.size == vectorizedRowBatch.getMaxSize()) {
-                writer.addRowBatch(vectorizedRowBatch);
-                vectorizedRowBatch.reset();
+        try {
+            Writer writer = OrcFile.createWriter(path, writerOptions);
+            vectorizedRowBatch = schema.createRowBatch(batchSize);
+            specialCaseSetup();
+            for (T datum : data) {
+                if (vectorizedRowBatch.size == vectorizedRowBatch.getMaxSize()) {
+                    writer.addRowBatch(vectorizedRowBatch);
+                    vectorizedRowBatch.reset();
+                }
+                // Write the datum to the column vectors.
+                write(datum);
+                vectorizedRowBatch.size++;
             }
-            // Write the datum to the column vectors.
-            write(datum);
-            vectorizedRowBatch.size++;
+            writer.addRowBatch(vectorizedRowBatch);
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        writer.addRowBatch(vectorizedRowBatch);
-        writer.close();
     }
 
 

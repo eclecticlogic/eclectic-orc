@@ -19,24 +19,48 @@ package com.eclecticlogic.orc;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.orc.CompressionKind;
-import org.apache.orc.OrcFile;
-
-import java.io.IOException;
+import org.apache.orc.OrcFile.WriterOptions;
 
 /**
+ * This is the main interface to create the ORC file. Get an instance of this from the Factory by passing in a Schema definition.
  * Created by kabram
  */
 public interface OrcWriter<T> {
 
+    /**
+     * @param configuration Configuration to use. This is optional.
+     * @return self reference for fluent interface.
+     */
     OrcWriter<T> withConfiguration(Configuration configuration);
 
-    OrcWriter<T> withOptions(OrcFile.WriterOptions writerOptions);
+    /**
+     * @param writerOptions Writer options to use. Note: if you pass in an explicit writerOptions object, this value will not be used.
+     * @return self reference for fluent interface.
+     */
+    OrcWriter<T> withOptions(WriterOptions writerOptions);
 
+    /**
+     * @param compressionKind Compression to use. This value will overwrite any setting passed in WriterOptions.
+     * @return self reference for fluent interface.
+     */
     OrcWriter<T> withCompression(CompressionKind compressionKind);
 
+    /**
+     * @param size Buffer size to use. This value will overwrite any setting passed in WriterOptions.
+     * @return self reference for fluent interface.
+     */
     OrcWriter<T> withBufferSize(int size);
 
+    /**
+     * @param batchSize Vector batch size to use.
+     * @return self reference for fluent interface.
+     */
     OrcWriter<T> withBatchSize(int batchSize);
 
-    void write(Path path, Iterable<T> data) throws IOException;
+    /**
+     * This method will throw a wrapped IOException if underlying API throws an IO exception.
+     * @param path Path to write to.
+     * @param data Data to write.
+     */
+    void write(Path path, Iterable<T> data);
 }
