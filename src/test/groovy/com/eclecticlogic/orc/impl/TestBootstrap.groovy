@@ -67,8 +67,13 @@ class TestBootstrap {
             it.subjectGrade = 'A'
             it.course = new Course(name: 'Mathematics', teacher: new Teacher(name: 'John Brewer'))
             it.graduationDate = YearMonth.of(2020, 12)
-            it.courseAudits = [true, false, false]
-            it.courseDates = [new Date(), new Date(), new Date()]
+            it.courseAudits = new ArrayDeque<>().with {
+                it.add(true)
+                it.add(false)
+                it.add(false)
+                return it
+            }
+            it.courseDates = [new Date(), new Date(), new Date()] as Set
             it.courseGrades = ['A' as char, 'B' as char, 'Z' as char, 'W' as char]
             it.initiationDate = LocalDate.of(2016, 1, 1)
             return it
@@ -82,8 +87,13 @@ class TestBootstrap {
             it.grades << 5L
             it.subjectGrade = 'A'
             it.graduationDate = YearMonth.of(2020, 12)
-            it.courseAudits = [true, false, false]
-            it.courseDates = [new Date(), new Date(), new Date()]
+            it.courseAudits = new ArrayDeque<>().with {
+                it.add(false)
+                it.add(true)
+                it.add(false)
+                return it
+            }
+            it.courseDates = [new Date(), new Date(), new Date()] as Set
             it.courseGrades = ['A' as char, 'B' as char, 'Z' as char, 'W' as char]
             it.course = new Course(name: 'Physics', teacher: new Teacher(name: 'Feynman', tenure: true))
             return it

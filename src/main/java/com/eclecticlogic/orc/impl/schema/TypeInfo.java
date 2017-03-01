@@ -21,7 +21,9 @@ import org.apache.orc.TypeDescription;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by kabram on 2/28/17.
@@ -144,6 +146,18 @@ public class TypeInfo {
     public boolean isTypeDateTime() {
         return Date.class.isAssignableFrom(genInfo.getColumnClassType());
     }
+
+
+    /**
+     * @return true if the underlying type is a java util List derivative.
+     */
+    public boolean isTypeJavaList() { return List.class.isAssignableFrom(genInfo.getColumnClassType()); }
+
+
+    /**
+     * @return true if the underlying type is a java util Collection derivative.
+     */
+    public boolean isTypeJavaCollection() { return Collection.class.isAssignableFrom(genInfo.getColumnClassType()); }
 
 
     public String getTemplateNameColumnSetter() {

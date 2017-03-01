@@ -16,7 +16,7 @@
 
 package com.eclecticlogic.orc.impl.schema;
 
-import com.eclecticlogic.orc.OrcList;
+import com.eclecticlogic.orc.OrcCollection;
 import com.eclecticlogic.orc.impl.bootstrap.GeneratorUtil;
 
 import java.util.ArrayList;
@@ -83,12 +83,12 @@ public class ComplexType {
     /**
      * @return Average size of list for list column types.
      */
-    public int getAverageListSize() {
-        OrcList orcList = genInfo.getAnnotation(OrcList.class);
-        if (orcList == null) {
-            throw new RuntimeException("@OrcList annotation must be present for list column types.");
+    public int getAverageSize() {
+        OrcCollection orcCollection = genInfo.getAnnotation(OrcCollection.class);
+        if (orcCollection == null) {
+            throw new RuntimeException("@OrcCollection annotation must be present for list column types.");
         }
-        return orcList.averageSize();
+        return orcCollection.averageSize();
     }
 
 

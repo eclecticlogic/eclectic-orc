@@ -30,8 +30,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by kabram on 2/27/17.
@@ -122,7 +124,7 @@ public class AbstractSchemaColumn implements GenInfo {
                 case TIMESTAMP:
                     return Category.TIMESTAMP;
             }
-        } else if (List.class.isAssignableFrom(clz)) {
+        } else if (Iterable.class.isAssignableFrom(clz)) {
             return Category.LIST;
         }
         return Category.STRUCT;

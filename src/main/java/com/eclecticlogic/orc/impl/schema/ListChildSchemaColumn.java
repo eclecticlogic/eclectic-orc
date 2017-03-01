@@ -16,7 +16,7 @@
 
 package com.eclecticlogic.orc.impl.schema;
 
-import com.eclecticlogic.orc.OrcList;
+import com.eclecticlogic.orc.OrcCollection;
 
 import java.lang.reflect.Method;
 
@@ -41,10 +41,10 @@ public class ListChildSchemaColumn extends SchemaColumn {
 
     @Override
     public Class<?> getColumnClassType() {
-        OrcList orcList = getLastAccessorMethod().getDeclaredAnnotation(OrcList.class);
-        if (orcList == null) {
-            throw new RuntimeException("@OrcList annotation must be present for list column types.");
+        OrcCollection orcCollection = getLastAccessorMethod().getDeclaredAnnotation(OrcCollection.class);
+        if (orcCollection == null) {
+            throw new RuntimeException("@OrcCollection annotation must be present for list column types.");
         }
-        return orcList.entryType();
+        return orcCollection.entryType();
     }
 }

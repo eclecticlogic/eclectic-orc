@@ -86,12 +86,23 @@ columnInt(schemaColumn, var, val, loc) ::= <<
 >>
 
 columnList(schemaColumn, var, val, loc) ::= <<
+    <if(schemaColumn.typeInfo.typeJavaList)>
+        java.util.List list = <val>;
+    <elseif(schemaColumn.typeInfo.typeJavaCollection)>
+        java.util.List list = new java.util.ArrayList(<val>);
+    <else>
+        java.util.List list = new java.util.ArrayList();
+        java.util.Iterator iterator = <val>.iterator();
+        while (iterator.hasNext()) {
+            list.add(iterator.next());
+        }
+    <endif>
     <var>.offsets[<loc>] = <var>.childCount;
-    <var>.lengths[<loc>] = <val>.size();
-    <var>.childCount += <val>.size();
-    for (int i = 0; i \< <val>.size(); i++) {
+    <var>.lengths[<loc>] = list.size();
+    <var>.childCount += list.size();
+    for (int i = 0; i \< list.size(); i++) {
         int location = <var>.offsets[<loc>] + i;
-        <schemaColumn.complexType.listChild.columnClassType.name> listElement = (<schemaColumn.complexType.listChild.columnClassType.name>)<val>.get(i);
+        <schemaColumn.complexType.listChild.columnClassType.name> listElement = (<schemaColumn.complexType.listChild.columnClassType.name>)list.get(i);
         <schemaColumn.complexType.listChild.VectorClassName> childVector = (<schemaColumn.complexType.listChild.VectorClassName>)<var>.child;
         <(schemaColumn.complexType.listChild.typeInfo.templateNameColumnSetter)(schemaColumn.complexType.listChild, "childVector", "listElement", "location")>
     }

@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-package com.eclecticlogic.orc;
+package com.eclecticlogic.orc
 
-import java.math.BigDecimal
 import java.time.LocalDate
-import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.YearMonth
 
 /**
  * Created by kabram
@@ -31,9 +28,9 @@ public class Graduate extends Student {
     private BigDecimal allowance;
     private List<String> subjects = new ArrayList<>();
     private List<Long> grades = new ArrayList<>();
-    List<Character> courseGrades = new ArrayList<>();
-    List<Date> courseDates = new ArrayList<>();
-    List<Boolean> courseAudits = new ArrayList<>();
+    Iterable<Character> courseGrades = new ArrayList<>();
+    Set<Date> courseDates = new HashSet<>()
+    Queue<Boolean> courseAudits = new ArrayDeque<>()
     Course course;
     YearMonth graduationDate;
     Character subjectGrade;
@@ -57,14 +54,14 @@ public class Graduate extends Student {
     }
 
 
-    @OrcList(entryType = String.class, averageSize = 50)
+    @OrcCollection(entryType = String.class, averageSize = 50)
     @Orc(length = 30)
     public List<String> getSubjects() {
         return subjects;
     }
 
 
-    @OrcList(entryType = Long.class, averageSize = 25)
+    @OrcCollection(entryType = Long.class, averageSize = 25)
     public List<Long> getGrades() {
         return grades;
     }
@@ -80,18 +77,18 @@ public class Graduate extends Student {
         return graduationDate
     }
 
-    @OrcList(entryType = Character.class, averageSize = 5)
-    List<Character> getCourseGrades() {
+    @OrcCollection(entryType = Character.class, averageSize = 5)
+    Iterable<Character> getCourseGrades() {
         return courseGrades
     }
 
-    @OrcList(entryType = Date.class, averageSize = 5)
-    List<Date> getCourseDates() {
+    @OrcCollection(entryType = Date.class, averageSize = 5)
+    Set<Date> getCourseDates() {
         return courseDates
     }
 
-    @OrcList(entryType = Boolean.class, averageSize = 5)
-    List<Boolean> getCourseAudits() {
+    @OrcCollection(entryType = Boolean.class, averageSize = 5)
+    Queue<Boolean> getCourseAudits() {
         return courseAudits
     }
 

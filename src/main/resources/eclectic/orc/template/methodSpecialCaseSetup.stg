@@ -8,7 +8,7 @@ specialCaseListInstruction(schemaColumn) ::= <<
     {
         <schemaColumn.vectorClassName> vector = (<schemaColumn.vectorClassName>)vectorizedRowBatch.cols[<schemaColumn.columnIndex>];
         <schemaColumn.complexType.listChild.vectorClassName> child = (<schemaColumn.complexType.listChild.vectorClassName>)vector.child;
-        int newLength = child.isNull.length * <schemaColumn.complexType.averageListSize>;
+        int newLength = child.isNull.length * <schemaColumn.complexType.averageSize>;
         child.isNull = new boolean[newLength];
         <(schemaColumn.complexType.listChild.complexType.templateNameListReinit)(schemaColumn, "child", "newLength")>
     }
