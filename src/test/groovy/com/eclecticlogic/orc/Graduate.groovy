@@ -24,6 +24,7 @@ import java.time.YearMonth
  */
 public class Graduate extends Student {
 
+    List<House> houses
     List<Color> colors
     Level level
     Club club
@@ -81,25 +82,28 @@ public class Graduate extends Student {
         return graduationDate
     }
 
-    @OrcCollection(entryType = Character.class, averageSize = 5)
+    @OrcCollection(entryType = Character, averageSize = 5)
     Iterable<Character> getCourseGrades() {
         return courseGrades
     }
 
-    @OrcCollection(entryType = Date.class, averageSize = 5)
+    @OrcCollection(entryType = Date, averageSize = 5)
     Set<Date> getCourseDates() {
         return courseDates
     }
 
-    @OrcCollection(entryType = Boolean.class, averageSize = 5)
+    @OrcCollection(entryType = Boolean, averageSize = 5)
     Queue<Boolean> getCourseAudits() {
         return courseAudits
     }
 
-    @OrcCollection(entryType = Color.class, averageSize = 5)
+    @OrcCollection(entryType = Color, averageSize = 5)
     List<Color> getColors() {
         return colors
     }
 
-
+    @OrcCollection(entryType = House, averageSize = 10, converter = HouseConverter)
+    List<House> getHouses() {
+        return houses
+    }
 }

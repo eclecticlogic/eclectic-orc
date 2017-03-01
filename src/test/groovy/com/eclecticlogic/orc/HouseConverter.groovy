@@ -19,17 +19,15 @@ package com.eclecticlogic.orc
 /**
  * Created by kabram on 3/1/17.
  */
-enum Color {
+class HouseConverter implements Converter<House, String> {
 
-    BLUE('B' as char), GREEN('G' as char), RED('R' as char), YELLOW('Y' as char), VIOLET('V' as char), WHITE('W' as char);
-
-    Color(char code) {
-        this.code = code
+    @Override
+    Class<String> getConvertedClass() {
+        return String
     }
-    private char code;
 
-    @Orc
-    char getCode() {
-        return code
+    @Override
+    String convert(House instance) {
+        return instance.name
     }
 }

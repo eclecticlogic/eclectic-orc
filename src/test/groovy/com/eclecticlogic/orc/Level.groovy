@@ -21,7 +21,7 @@ package com.eclecticlogic.orc
  */
 enum Level {
 
-    FRESHMEN('F'), SOPHOMORE('S'), JUNIOR('J'), SENIOR('N');
+    FRESHMEN('F' as char), SOPHOMORE('S' as char), JUNIOR('J' as char), SENIOR('N' as char);
 
     Level(char code) {
         this.code = code

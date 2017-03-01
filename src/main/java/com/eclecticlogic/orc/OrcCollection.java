@@ -42,4 +42,16 @@ public @interface OrcCollection {
      */
     int averageSize() default 1;
 
+
+    /**
+     * @return A converter for each element of the class. T
+     */
+    Class<? extends Converter<?, ?>> converter() default DEFAULT.class;
+
+
+    /**
+     * An elaborate workaround for a vexing issue with not being able to use null as the default value.
+     * Refer to http://stackoverflow.com/questions/1178104/error-setting-a-default-null-value-for-an-annotations-field
+     */
+    static abstract class DEFAULT implements Converter<String, String> {}
 }

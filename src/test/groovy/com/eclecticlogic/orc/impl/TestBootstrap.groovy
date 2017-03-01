@@ -16,9 +16,13 @@
 
 package com.eclecticlogic.orc.impl
 
+import com.eclecticlogic.orc.Club
+import com.eclecticlogic.orc.Color
 import com.eclecticlogic.orc.Course
 import com.eclecticlogic.orc.Graduate
 import com.eclecticlogic.orc.Factory
+import com.eclecticlogic.orc.House
+import com.eclecticlogic.orc.Level
 import com.eclecticlogic.orc.OrcHandle
 import com.eclecticlogic.orc.OrcWriter
 import com.eclecticlogic.orc.Schema
@@ -41,28 +45,33 @@ class TestBootstrap {
 
     void testOrcWriting() {
         Schema schema = Factory.createSchema(Graduate)
-//                .column { it.colors }
+                .column { it.houses }
+                .column { it.colors }
                 .column { it.level }
                 .column {it.club }
                 .column { it.power }
-//                .column { it.name }
-//                .column { it.age }
-//                .column('money') { it.allowance }
-//                .column('subjects') { it.subjects }
-//                .column('gpa') { it.grades }
-//                .column('subject') { it.course.name }
-//                .column('teacher') { it.course.teacher.name }
-//                .column('tenured') { it.course.teacher.tenure }
-//                .column { it.course.teacher.startMonth }
-//                .column('advisor') { it.mycoursework().teacher.name }
-//                .column { it.courseGrades }
-//                .column { it.courseAudits }
-//                .column { it.courseDates }
-//                .column('initiation') { it.initiationDate }
+                .column { it.name }
+                .column { it.age }
+                .column('money') { it.allowance }
+                .column('subjects') { it.subjects }
+                .column('gpa') { it.grades }
+                .column('subject') { it.course.name }
+                .column('teacher') { it.course.teacher.name }
+                .column('tenured') { it.course.teacher.tenure }
+                .column { it.course.teacher.startMonth }
+                .column('advisor') { it.mycoursework().teacher.name }
+                .column { it.courseGrades }
+                .column { it.courseAudits }
+                .column { it.courseDates }
+                .column('initiation') { it.initiationDate }
 
         OrcHandle handle = Factory.createWriter(schema)
         List<Graduate> list = []
         list << new Graduate(name: 'abc', age: 10, allowance: 150.0).with {
+            it.houses = [new House(name: 'a'), new House(name: 'b')]
+            it.colors = [Color.RED, Color.GREEN, Color.BLUE]
+            it.level = Level.FRESHMEN
+            it.club = Club.OMEGA
             it.subjects << 'english'
             it.subjects << 'history'
             it.subjects << 'math'

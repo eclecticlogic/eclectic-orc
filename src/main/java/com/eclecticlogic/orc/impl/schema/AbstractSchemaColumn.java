@@ -139,12 +139,8 @@ public class AbstractSchemaColumn implements GenInfo {
      */
     protected Category getEnumCategory(Class<? extends Enum<?>> clz) {
         Optional<Method> annotatedMethod = GeneratorUtil.getAnnotatedMethodInEnum(clz);
-        if (annotatedMethod.isPresent()) {
-            return _getCategory(annotatedMethod.get().getReturnType());
-        } else {
-            // Assumed to be a call to name() and therefore a string
-            return Category.STRING;
-        }
+        // Assumed to be a call to name() and therefore a string
+        return annotatedMethod.map(m -> _getCategory(m.getReturnType())).orElse(Category.STRING);
     }
 
 }
