@@ -62,7 +62,7 @@ public class TypeDesc {
             return null;
         }
         Orc orc = genInfo.getAnnotation(Orc.class);
-        if (orc == null || orc.length() == 0) {
+        if (orc == null) {
             // Check if jpa column annotation is present.
             Column col = genInfo.getAnnotation(Column.class);
             if (col == null || col.length() == 0) {
@@ -70,7 +70,7 @@ public class TypeDesc {
             }
             return col.length();
         }
-        return orc.length();
+        return orc.length() == 0 ? null : orc.length();
     }
 
 

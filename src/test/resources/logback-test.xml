@@ -23,7 +23,7 @@
 		</encoder>
 	</appender>
 
-    <logger name="com.eclecticlogic.orc" level="debug" />
+    <logger name="com.eclecticlogic.orc" level="trace" />
 
 	<root level="info">
 		<appender-ref ref="console" />

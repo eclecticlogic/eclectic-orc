@@ -87,7 +87,7 @@ public class AbstractSchemaColumn implements GenInfo {
         } else if (String.class.isAssignableFrom(clz)) {
             // Return STRING vs VARCHAR based on whether size is specified or not.
             Orc orc = getAnnotation(Orc.class);
-            if (orc == null || orc.length() == 0) {
+            if (orc == null) {
                 // Check if jpa column annotation is present.
                 Column col = getAnnotation(Column.class);
                 if (col == null || col.length() == 0) {
@@ -95,7 +95,7 @@ public class AbstractSchemaColumn implements GenInfo {
                 }
                 return Category.VARCHAR;
             }
-            return Category.VARCHAR;
+            return orc.length() == 0 ? Category.STRING : Category.VARCHAR;
         } else if (BigDecimal.class.isAssignableFrom(clz)) {
             return Category.DECIMAL;
         } else if (LocalDate.class.isAssignableFrom(clz)) {
