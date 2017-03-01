@@ -100,7 +100,6 @@ public abstract class AbstractOrcWriter<T> implements OrcWriter<T> {
         }
         writer.addRowBatch(vectorizedRowBatch);
         writer.close();
-        System.out.println(getTypeDescription());
     }
 
 
@@ -142,4 +141,10 @@ public abstract class AbstractOrcWriter<T> implements OrcWriter<T> {
      * @param datum Object instance to write.
      */
     protected abstract void write(T datum);
+
+
+    @Override
+    public String toString() {
+        return getTypeDescription().toString();
+    }
 }
