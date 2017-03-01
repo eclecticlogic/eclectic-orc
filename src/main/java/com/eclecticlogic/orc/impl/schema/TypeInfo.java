@@ -19,7 +19,6 @@ package com.eclecticlogic.orc.impl.schema;
 import com.eclecticlogic.orc.impl.bootstrap.GeneratorUtil;
 import org.apache.orc.TypeDescription;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Date;

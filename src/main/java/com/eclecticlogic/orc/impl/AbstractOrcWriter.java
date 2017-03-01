@@ -38,6 +38,7 @@ public abstract class AbstractOrcWriter<T> implements OrcWriter<T> {
     private CompressionKind compressionKind;
     private int bufferSize = 10 * 1024;
     private int batchSize = 1024;
+    private TypeDescription _typeDescription;
     protected VectorizedRowBatch vectorizedRowBatch;
 
     @Override
@@ -99,6 +100,15 @@ public abstract class AbstractOrcWriter<T> implements OrcWriter<T> {
         }
         writer.addRowBatch(vectorizedRowBatch);
         writer.close();
+        System.out.println(getTypeDescription());
+    }
+
+
+    protected TypeDescription getTypeDescription() {
+        if (_typeDescription == null) {
+            _typeDescription = createTypeDescription();
+        }
+        return _typeDescription;
     }
 
 
@@ -116,7 +126,7 @@ public abstract class AbstractOrcWriter<T> implements OrcWriter<T> {
      * @return The schema for the orc file as computed by the property access definitions. The implementation is generated dynamically at
      * runtime using javassist.
      */
-    protected abstract TypeDescription getTypeDescription();
+    protected abstract TypeDescription createTypeDescription();
 
 
     /**

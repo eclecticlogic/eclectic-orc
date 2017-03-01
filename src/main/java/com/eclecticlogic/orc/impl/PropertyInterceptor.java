@@ -16,13 +16,13 @@
 
 package com.eclecticlogic.orc.impl;
 
-import com.google.common.base.Defaults;
+import com.eclecticlogic.orc.impl.bootstrap.GeneratorUtil;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.stream.Stream;
+import java.util.stream.*;
 
 /**
  * Created by kabram
@@ -50,7 +50,7 @@ public class PropertyInterceptor<T> implements MethodInterceptor {
     Object getReturnValue(Method method) {
         Class<?> returnType = method.getReturnType();
         if (returnType.isPrimitive()) {
-            return Defaults.defaultValue(method.getReturnType());
+            return GeneratorUtil.getDefaultValueForPrimitiveType(method.getReturnType());
         } else if (Modifier.isFinal(returnType.getModifiers()) || !isDefaultConstructable(returnType)) {
             // Cannot sub-class a final class or a class with no default constructor and therefore cannot make a proxy
             return null;

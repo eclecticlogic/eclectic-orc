@@ -24,6 +24,7 @@ import com.eclecticlogic.orc.Schema
 import com.eclecticlogic.orc.Teacher
 import org.apache.hadoop.fs.Path
 import org.apache.orc.CompressionKind
+import org.apache.orc.TypeDescription
 import org.testng.annotations.Test
 
 import java.nio.file.Files
@@ -91,7 +92,7 @@ class TestBootstrap {
         try {
             writer.write(path, list)
         } finally {
-            Files.delete(Paths.get('/home/kabram/temp/dp/graduate.orc'))
+//            Files.delete(Paths.get('/home/kabram/temp/dp/graduate.orc'))
         }
 
     }

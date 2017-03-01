@@ -17,11 +17,13 @@
 package com.eclecticlogic.orc.impl.schema;
 
 import com.eclecticlogic.orc.Converter;
+import com.eclecticlogic.orc.Orc;
 import com.eclecticlogic.orc.OrcTemporal;
 import com.eclecticlogic.orc.OrcTemporalType;
 import com.eclecticlogic.orc.impl.bootstrap.GeneratorUtil;
 import org.apache.orc.TypeDescription.Category;
 
+import javax.persistence.Column;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -82,6 +84,16 @@ public class AbstractSchemaColumn implements GenInfo {
         } else if (GeneratorUtil.getCategoryByType().containsKey(clz)) {
             return GeneratorUtil.getCategoryByType().get(clz);
         } else if (String.class.isAssignableFrom(clz)) {
+            // Return STRING vs VARCHAR based on whether size is specified or not.
+            Orc orc = getAnnotation(Orc.class);
+            if (orc == null || orc.length() == 0) {
+                // Check if jpa column annotation is present.
+                Column col = getAnnotation(Column.class);
+                if (col == null || col.length() == 0) {
+                    return Category.STRING;
+                }
+                return Category.VARCHAR;
+            }
             return Category.VARCHAR;
         } else if (BigDecimal.class.isAssignableFrom(clz)) {
             return Category.DECIMAL;

@@ -70,7 +70,7 @@ public class OrcWriterBootstrap {
         try {
             cc.setSuperclass(pool.get(AbstractOrcWriter.class.getName()));
 
-            cc.addMethod(CtNewMethod.make(getTypeDescriptionBody(schemaColumn), cc));
+            cc.addMethod(CtNewMethod.make(createTypeDescriptionBody(schemaColumn), cc));
             cc.addMethod(CtNewMethod.make(getSpecialCaseSetupBody(schemaColumn), cc));
             cc.addMethod(CtNewMethod.make(getWriteBody(schemaColumn, schema.getSchemaClass()), cc));
         } catch (CannotCompileException | NotFoundException e) {
@@ -85,8 +85,8 @@ public class OrcWriterBootstrap {
     }
 
 
-    static String getTypeDescriptionBody(SchemaColumn schemaColumn) {
-        STGroup group = new STGroupFile("eclectic/orc/template/methodGetTypeDescription.stg");
+    static String createTypeDescriptionBody(SchemaColumn schemaColumn) {
+        STGroup group = new STGroupFile("eclectic/orc/template/methodCreateTypeDescription.stg");
         ST st = group.getInstanceOf("methodGetTypeDescription");
         st.add("schemaColumn", schemaColumn);
         String s = st.render();

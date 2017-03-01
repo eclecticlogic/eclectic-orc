@@ -31,7 +31,6 @@ public class TypeDesc {
     private String name;
     private final GenInfo genInfo;
 
-
     public TypeDesc(GenInfo genInfo) {
         this.genInfo = genInfo;
     }
@@ -63,7 +62,7 @@ public class TypeDesc {
             return null;
         }
         Orc orc = genInfo.getAnnotation(Orc.class);
-        if (orc == null) {
+        if (orc == null || orc.length() == 0) {
             // Check if jpa column annotation is present.
             Column col = genInfo.getAnnotation(Column.class);
             if (col == null || col.length() == 0) {

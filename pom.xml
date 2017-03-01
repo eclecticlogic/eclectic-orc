@@ -146,7 +146,7 @@
                 <configuration>
                     <jvm>${env.JAVA_HOME}/bin/java</jvm>
                     <suiteXmlFiles>
-                        <suiteXmlFile>src/test/resources/eclectic.orc-testng-suite.xml</suiteXmlFile>
+                        <suiteXmlFile>src/test/resources/orc-testng-suite.xml</suiteXmlFile>
                     </suiteXmlFiles>
                 </configuration>
             </plugin>
@@ -193,11 +193,6 @@
             <groupId>cglib</groupId>
             <artifactId>cglib-nodep</artifactId>
             <version>3.2.4</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>21.0</version>
         </dependency>
         <dependency>
             <groupId>org.javassist</groupId>

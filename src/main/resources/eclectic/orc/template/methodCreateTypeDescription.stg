@@ -1,6 +1,6 @@
 
 methodGetTypeDescription(schemaColumn) ::= <<
-    protected org.apache.orc.TypeDescription getTypeDescription() {
+    protected org.apache.orc.TypeDescription createTypeDescription() {
         return <typeDescription(schemaColumn)>;
     }
 >>

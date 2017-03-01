@@ -44,6 +44,7 @@ public class GeneratorUtil {
     private final static Map<Class<?>, Category> categoriesByType;
     private final static Map<Class<?>, String> primitiveAccessorByType;
     private final static Map<Class<? extends ColumnVector>, String> templateNameClassReinitByType;
+    private final static Map<Class<?>, Object> defaultsByPrimitiveType;
 
     static {
         {
@@ -87,6 +88,22 @@ public class GeneratorUtil {
             map.put(TimestampColumnVector.class, "initTimestampList");
             templateNameClassReinitByType = Collections.unmodifiableMap(map);
         }
+        {
+            Map<Class<?>, Object> map = new HashMap();
+            map.put(Boolean.TYPE, Boolean.valueOf(false));
+            map.put(Character.TYPE, Character.valueOf('\u0000'));
+            map.put(Byte.TYPE, Byte.valueOf((byte)0));
+            map.put(Short.TYPE, Short.valueOf((short)0));
+            map.put(Integer.TYPE, Integer.valueOf(0));
+            map.put(Long.TYPE, Long.valueOf(0L));
+            map.put(Float.TYPE, Float.valueOf(0.0F));
+            map.put(Double.TYPE, Double.valueOf(0.0D));
+            defaultsByPrimitiveType = Collections.unmodifiableMap(map);
+        }
+    }
+
+    public static Object getDefaultValueForPrimitiveType(Class<?> primitiveType) {
+        return defaultsByPrimitiveType.get(primitiveType);
     }
 
     public static Map<Class<?>, Category> getCategoryByType() {
@@ -129,7 +146,7 @@ public class GeneratorUtil {
             case SHORT:
                 return "createShort";
             case STRING:
-                return "createVarchar";
+                return "createString";
             case STRUCT:
                 return "createStruct";
             case TIMESTAMP:
