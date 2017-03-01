@@ -19,6 +19,7 @@ package com.eclecticlogic.orc.impl
 import com.eclecticlogic.orc.Course
 import com.eclecticlogic.orc.Graduate
 import com.eclecticlogic.orc.Factory
+import com.eclecticlogic.orc.OrcHandle
 import com.eclecticlogic.orc.OrcWriter
 import com.eclecticlogic.orc.Schema
 import com.eclecticlogic.orc.Teacher
@@ -54,7 +55,7 @@ class TestBootstrap {
                 .column { it.courseDates }
                 .column('initiation') { it.initiationDate }
 
-        OrcWriter writer = Factory.createWriter(schema)
+        OrcHandle handle = Factory.createWriter(schema)
         List<Graduate> list = []
         list << new Graduate(name: 'abc', age: 10, allowance: 150.0).with {
             it.subjects << 'english'
@@ -90,9 +91,9 @@ class TestBootstrap {
         list << new Graduate(name: 'aaa', age: 30, allowance: 350.0, course: new Course(name: 'English', teacher: new Teacher(name: 'Brown')))
         Path path = new Path('/home/kabram/temp/dp/graduate.orc')
         try {
-            writer.write(path, list)
+            handle.open(path).write(list).close()
         } finally {
-//            Files.delete(Paths.get('/home/kabram/temp/dp/graduate.orc'))
+            Files.delete(Paths.get('/home/kabram/temp/dp/graduate.orc'))
         }
 
     }

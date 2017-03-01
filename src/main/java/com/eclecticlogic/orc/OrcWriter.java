@@ -16,51 +16,28 @@
 
 package com.eclecticlogic.orc;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
-import org.apache.orc.CompressionKind;
-import org.apache.orc.OrcFile.WriterOptions;
+import java.io.Closeable;
+import java.io.IOException;
+import java.util.function.Consumer;
 
 /**
- * This is the main interface to create the ORC file. Get an instance of this from the Factory by passing in a Schema definition.
+ * This is the interface to write your data and close the orc file.
  * Created by kabram
  */
-public interface OrcWriter<T> {
+public interface OrcWriter<T> extends Closeable {
 
     /**
-     * @param configuration Configuration to use. This is optional.
-     * @return self reference for fluent interface.
-     */
-    OrcWriter<T> withConfiguration(Configuration configuration);
-
-    /**
-     * @param writerOptions Writer options to use. Note: if you pass in an explicit writerOptions object, this value will not be used.
-     * @return self reference for fluent interface.
-     */
-    OrcWriter<T> withOptions(WriterOptions writerOptions);
-
-    /**
-     * @param compressionKind Compression to use. This value will overwrite any setting passed in WriterOptions.
-     * @return self reference for fluent interface.
-     */
-    OrcWriter<T> withCompression(CompressionKind compressionKind);
-
-    /**
-     * @param size Buffer size to use. This value will overwrite any setting passed in WriterOptions.
-     * @return self reference for fluent interface.
-     */
-    OrcWriter<T> withBufferSize(int size);
-
-    /**
-     * @param batchSize Vector batch size to use.
-     * @return self reference for fluent interface.
-     */
-    OrcWriter<T> withBatchSize(int batchSize);
-
-    /**
-     * This method will throw a wrapped IOException if underlying API throws an IO exception.
-     * @param path Path to write to.
+     * This method will throw a wrapped IOException if underlying API throws an IO exception. This may be called multiple times
+     * to write data to the same file.
      * @param data Data to write.
      */
-    void write(Path path, Iterable<T> data);
+    OrcWriter<T> write(Iterable<T> data);
+
+
+    /**
+     * A variant of the Closeable.close() method that calls the supplied exception handler instead of throwing an exception.
+     * useful in cases where you want to simply ignore the exception and not make your code verbose.
+     * @param exceptionHandler
+     */
+    void close(Consumer<IOException> exceptionHandler);
 }

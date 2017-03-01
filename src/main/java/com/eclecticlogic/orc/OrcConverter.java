@@ -23,12 +23,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Created by kabram on 2/28/17.
+ * Annotate a domain specific type with this to define a converter that can convert your data-type to an orc-compatible one.
+ * Created by kabram
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Inherited
 public @interface OrcConverter {
+
     /**
      * @return Converter class to use for type-conversion.
      */

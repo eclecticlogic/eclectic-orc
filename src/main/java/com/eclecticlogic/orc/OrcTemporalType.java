@@ -17,6 +17,7 @@
 package com.eclecticlogic.orc;
 
 /**
+ * Defines whether a java.util.Date value (or derivative) should be interpreted as a Date without time or a timestamp value.
  * Created by kabram.
  */
 public enum OrcTemporalType {

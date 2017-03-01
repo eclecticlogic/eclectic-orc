@@ -16,7 +16,7 @@
 
 package com.eclecticlogic.orc.impl.bootstrap;
 
-import com.eclecticlogic.orc.OrcWriter;
+import com.eclecticlogic.orc.OrcHandle;
 import com.eclecticlogic.orc.impl.AbstractOrcWriter;
 import com.eclecticlogic.orc.impl.SchemaSpi;
 import com.eclecticlogic.orc.impl.schema.SchemaColumn;
@@ -45,7 +45,7 @@ public class OrcWriterBootstrap {
 
     private static final String ORC_WRITER_PACKAGE = "com.eclecticlogic.eclectic.orc.impl.writer.";
 
-    private final static ConcurrentHashMap<Class<?>, OrcWriter<?>> writersByClass = new ConcurrentHashMap<>();
+    private final static ConcurrentHashMap<Class<?>, OrcHandle<?>> writersByClass = new ConcurrentHashMap<>();
     // This is used to prevent linkage error due to concurrent creation of classes.
     private static AtomicInteger extractorNameSuffix = new AtomicInteger();
 
@@ -53,15 +53,15 @@ public class OrcWriterBootstrap {
 
 
     @SuppressWarnings("unchecked")
-    public static <T> OrcWriter<T> create(SchemaSpi<T> schema) {
+    public static <T> OrcHandle<T> create(SchemaSpi<T> schema) {
         Class<T> clz = schema.getSchemaClass();
         writersByClass.computeIfAbsent(clz, (cz) -> createWriter(schema));
-        return (OrcWriter<T>) writersByClass.get(clz);
+        return (OrcHandle<T>) writersByClass.get(clz);
     }
 
 
     @SuppressWarnings("unchecked")
-    static <T> OrcWriter<T> createWriter(SchemaSpi<T> schema) {
+    static <T> OrcHandle<T> createWriter(SchemaSpi<T> schema) {
         ClassPool pool = ClassPool.getDefault();
         pool.insertClassPath(new ClassClassPath(AbstractOrcWriter.class));
         CtClass cc = pool.makeClass(ORC_WRITER_PACKAGE + schema.getSchemaClass().getSimpleName() + "$OrcWriter_" + extractorNameSuffix
@@ -78,7 +78,7 @@ public class OrcWriterBootstrap {
         }
 
         try {
-            return (OrcWriter<T>) cc.toClass().newInstance();
+            return (OrcHandle<T>) cc.toClass().newInstance();
         } catch (InstantiationException | IllegalAccessException | CannotCompileException e) {
             throw new RuntimeException(e);
         }

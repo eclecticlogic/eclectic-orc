@@ -21,16 +21,27 @@ import com.eclecticlogic.orc.impl.bootstrap.OrcWriterBootstrap;
 import com.eclecticlogic.orc.impl.SchemaSpiImpl;
 
 /**
+ * This is the main class to interact with the eclectic-orc library.
  * Created by kabram
  */
 public class Factory {
 
+    /**
+     * @param clz The class of objects you want to write to your orc file.
+     * @param <T> The type of objects you want to write.
+     * @return Schema creator to specify the orc file schema.
+     */
     public static <T> Schema<T> createSchema(Class<T> clz) {
         return new SchemaSpiImpl<T>(clz);
     }
 
 
-    public static <T> OrcWriter<T> createWriter(Schema<T> schema) {
+    /**
+     * @param schema The schema for the orc file you want to create.
+     * @param <T> The type of the object you are working with.
+     * @return Instance that allows you to configure, open and write to your data.
+     */
+    public static <T> OrcHandle<T> createWriter(Schema<T> schema) {
         return OrcWriterBootstrap.create((SchemaSpi<T>)schema);
     }
 }

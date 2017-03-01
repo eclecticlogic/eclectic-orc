@@ -17,13 +17,21 @@
 package com.eclecticlogic.orc;
 
 /**
- * Converts from a user-type U to an orc-compatible type T.
+ * Converts from a user-type U to an orc-compatible type T. Use this with the @OrcConverter annotation to convert custom data-types to
+ * orc-compatible types.
  * @param <U> user-data type
  * @param <T> converted orc-compatible type
  */
 public interface Converter<U, T> {
 
+    /**
+     * @return Class of the orc-compatible type.
+     */
     Class<T> getConvertedClass();
 
+    /**
+     * @param instance Instance of your domain specific type.
+     * @return Converted value.
+     */
     T convert(U instance);
 }

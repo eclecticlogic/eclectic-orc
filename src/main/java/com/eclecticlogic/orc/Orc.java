@@ -19,7 +19,9 @@ package com.eclecticlogic.orc;
 import java.lang.annotation.*;
 
 /**
- * Annotates additional properties of a column for type definition.
+ * Annotates additional properties of a column for type definition. Note: If your class has JPA @Column annotations, those can be used
+ * in lieu of this annotation. If both are specified, this annotation takes precedence.
+ *
  * Created by kabram
  */
 @Retention(RetentionPolicy.RUNTIME)

@@ -23,6 +23,9 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
+ * Similar to the JPA temporal annotation, defines whether the date should be interpreted as including or not-including time.
+ * If the JPA @Temporal annotation is present, its value will be used. If both annotations are present, this annotation takes precedence.
+ *
  * Created by kabram.
  */
 @Target(METHOD)

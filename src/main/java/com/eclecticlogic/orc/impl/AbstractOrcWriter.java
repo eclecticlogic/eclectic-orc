@@ -16,6 +16,7 @@
 
 package com.eclecticlogic.orc.impl;
 
+import com.eclecticlogic.orc.OrcHandle;
 import com.eclecticlogic.orc.OrcWriter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -27,11 +28,12 @@ import org.apache.orc.TypeDescription;
 import org.apache.orc.Writer;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 /**
  * Created by kabram
  */
-public abstract class AbstractOrcWriter<T> implements OrcWriter<T> {
+public abstract class AbstractOrcWriter<T> implements OrcHandle<T>, OrcWriter<T> {
 
     private Configuration configuration = new Configuration();
     private OrcFile.WriterOptions writerOptions;
@@ -40,39 +42,42 @@ public abstract class AbstractOrcWriter<T> implements OrcWriter<T> {
     private int batchSize = 1024;
     private TypeDescription _typeDescription;
     protected VectorizedRowBatch vectorizedRowBatch;
+    private Writer writer;
+
 
     @Override
-    public OrcWriter<T> withConfiguration(Configuration configuration) {
+    public OrcHandle<T> withConfiguration(Configuration configuration) {
         this.configuration = configuration;
         return this;
     }
 
     @Override
-    public OrcWriter<T> withOptions(OrcFile.WriterOptions writerOptions) {
+    public OrcHandle<T> withOptions(OrcFile.WriterOptions writerOptions) {
         this.writerOptions = writerOptions;
         return null;
     }
 
     @Override
-    public OrcWriter<T> withCompression(CompressionKind compressionKind) {
+    public OrcHandle<T> withCompression(CompressionKind compressionKind) {
         this.compressionKind = compressionKind;
         return this;
     }
 
     @Override
-    public OrcWriter<T> withBufferSize(int size) {
+    public OrcHandle<T> withBufferSize(int size) {
         this.bufferSize = size;
         return this;
     }
 
     @Override
-    public OrcWriter<T> withBatchSize(int batchSize) {
+    public OrcHandle<T> withBatchSize(int batchSize) {
         this.batchSize = batchSize;
         return this;
     }
 
+
     @Override
-    public void write(Path path, Iterable<T> data) {
+    public OrcWriter<T> open(Path path) {
         if (writerOptions == null) {
             writerOptions = OrcFile.writerOptions(configuration);
         }
@@ -82,14 +87,23 @@ public abstract class AbstractOrcWriter<T> implements OrcWriter<T> {
         if (bufferSize != 0) {
             writerOptions.bufferSize(bufferSize);
         }
-
         // Add the schema to the writer options.
         TypeDescription schema = getTypeDescription();
         writerOptions.setSchema(schema);
         try {
-            Writer writer = OrcFile.createWriter(path, writerOptions);
-            vectorizedRowBatch = schema.createRowBatch(batchSize);
-            specialCaseSetup();
+            writer = OrcFile.createWriter(path, writerOptions);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        vectorizedRowBatch = schema.createRowBatch(batchSize);
+        specialCaseSetup();
+        return this;
+    }
+
+
+    @Override
+    public OrcWriter<T> write(Iterable<T> data) {
+        try {
             for (T datum : data) {
                 if (vectorizedRowBatch.size == vectorizedRowBatch.getMaxSize()) {
                     writer.addRowBatch(vectorizedRowBatch);
@@ -99,10 +113,32 @@ public abstract class AbstractOrcWriter<T> implements OrcWriter<T> {
                 write(datum);
                 vectorizedRowBatch.size++;
             }
-            writer.addRowBatch(vectorizedRowBatch);
-            writer.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+        return this;
+    }
+
+
+    @Override
+    public void close() throws IOException {
+        if (vectorizedRowBatch != null) {
+            writer.addRowBatch(vectorizedRowBatch);
+            vectorizedRowBatch = null;
+        }
+        if (writer != null) {
+            writer.close();
+            writer = null;
+        }
+    }
+
+
+    @Override
+    public void close(Consumer<IOException> exceptionHandler) {
+        try {
+            close();
+        } catch (IOException e) {
+            exceptionHandler.accept(e);
         }
     }
 

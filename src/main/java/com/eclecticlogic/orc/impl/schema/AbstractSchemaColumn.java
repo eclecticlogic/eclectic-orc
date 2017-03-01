@@ -19,11 +19,11 @@ package com.eclecticlogic.orc.impl.schema;
 import com.eclecticlogic.orc.Converter;
 import com.eclecticlogic.orc.Orc;
 import com.eclecticlogic.orc.OrcTemporal;
-import com.eclecticlogic.orc.OrcTemporalType;
 import com.eclecticlogic.orc.impl.bootstrap.GeneratorUtil;
 import org.apache.orc.TypeDescription.Category;
 
 import javax.persistence.Column;
+import javax.persistence.Temporal;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -102,16 +102,26 @@ public class AbstractSchemaColumn implements GenInfo {
         } else if (ZonedDateTime.class.isAssignableFrom(clz) || LocalDateTime.class.isAssignableFrom(clz)) {
             return Category.TIMESTAMP;
         } else if (Date.class.isAssignableFrom(clz)) {
-            if (getLastAccessorMethod().isAnnotationPresent(OrcTemporal.class)) {
-                OrcTemporalType temporalType = getLastAccessorMethod().getDeclaredAnnotation(OrcTemporal.class).value();
-                switch (temporalType) {
+            OrcTemporal orcTemporal = getAnnotation(OrcTemporal.class);
+            if (orcTemporal == null) {
+                Temporal jpaTemporal = getAnnotation(Temporal.class);
+                if (jpaTemporal == null) {
+                    return Category.TIMESTAMP;
+                }
+                switch (jpaTemporal.value()) {
                     case DATE:
                         return Category.DATE;
+                    case TIME:
                     case TIMESTAMP:
                         return Category.TIMESTAMP;
                 }
             }
-            return Category.TIMESTAMP;
+            switch (orcTemporal.value()) {
+                case DATE:
+                    return Category.DATE;
+                case TIMESTAMP:
+                    return Category.TIMESTAMP;
+            }
         } else if (List.class.isAssignableFrom(clz)) {
             return Category.LIST;
         }
