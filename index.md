@@ -2,14 +2,12 @@ Eclectic-ORC
 =====
 
 Eclectic-ORC is a Java object writer for creating ORC files by simply annotating your class files as necessary. 
-The framework uses runtime code generation to create a fast customized ORC writer taking care of all the details. 
+The framework uses runtime code generation to create a fast customized ORC writer taking care of all the low-level details. 
 
 ## Feature Highlights
 
 - Declarative Schema Definition
-- Annotated column specification
-   - Use custom `@Orc` annotations or
-   - Use existing JPA `@Column` annotations
+- Annotated column specification (use `@Orc` or JPA `@Column` annotations)
 
 # Getting Started
 
@@ -50,7 +48,7 @@ Consider a simple class that you want to serialize to an ORC file:
 ```  
 
 To write a collection of Students to an ORC file, you first have to provide a schema definition. 
-The eclectic-orc library makes doing this trivially easy:
+The eclectic-orc library makes doing this trivial:
 
 ```java
     import com.eclecticlogic.orc.Factory;
@@ -66,12 +64,13 @@ The eclectic-orc library makes doing this trivially easy:
 ```
 
 The above schema definition implicitly does three things:
+
 1. It defines the order of the columns (first name then year)
 1. It defines the data types of the columns (String, int)
 1. It defines the names of the columns (name, year)
 
 The library allows you to customize aspects of the schema. Let us start with column names. 
-If you wanted your column to be called 'graduationYear' instead of year, simply change the 
+If you want the *year* column to be called *graduationYear*, simply change the 
 schema column definition. 
 
 ```java
@@ -80,8 +79,7 @@ schema column definition.
             .column("graduationYear", Student::getYear);
 ```
 
-You can also define columns based on properties of other classes that you reference. 
-So if the `Student` class referenced a Club class as shown below:
+You can also define columns based on properties of other classes that are referenced. If the `Student` class referenced a Club class as shown below:
 
 ```java
 
@@ -156,27 +154,27 @@ In simple cases, the above code can be written as:
 The following data types are **supported** in the current release:
 
 1. Java primitive types - `boolean`, `char`, `byte`, `short`, `int`, `long`, `float`, `double`. These map to their corresponding counterparts 
-with the exception of `char` which maps to `varchar(1)` The exception for `char` is because AWS Athena is currently unable to handle char column types.
-2. BigDecimal mapping to ORC Decimal type.
-3. LocalDate mapping to ORC Date type.
-4. Date, LocalDateTime, ZonedDateTime mapping to ORC Timestamp type unless there is either a JPA @Temporal or @OrcTemporal annotation
-that defines the TemporalType (or OrcTemporalType) as DATE.
-5. String mapping to ORC string type.
-6. List mapping to ORC List type, currently supporting only simple types as the member. See below for how to use lists.
+with the exception of `char` which maps to `varchar(1)` The exception for `char` is because AWS Athena is currently unable to handle `char` column types.
+2. `BigDecimal` mapping to ORC `Decimal` type.
+3. `LocalDate` mapping to ORC `Date` type.
+4. `Date`, `LocalDateTime`, `ZonedDateTime` mapping to ORC `Timestamp` type unless there is either a JPA `@Temporal` or `@OrcTemporal` annotation
+that defines the `TemporalType` (or `OrcTemporalType`) as `DATE`.
+5. `String` mapping to ORC `string` type.
+6. Any derivative of `Iterable` mapping to ORC `List` type, currently supporting only simple types as the member. See below for how to use lists.
 
 The following data types are **not supported** in the current release:
-1. Binary data type.
-2. Map
-3. Union
-4. Sub-structures (Struct within your table, map of structs, list of structs, etc.)
+1. `Binary` data type.
+2. `Map`
+3. `Union`
+4. Sub-structures (`Struct` within your table, map of structs, list of structs, etc.)
 
 #### Special cases
 
 ##### String length specification
 
-To specify the number of characters for a String column type, simply use the @Orc annotation. If the framework finds 
-an existing JPA @Column annotation, it will use the length property of that as well. If both annotations are present, 
-the @Orc annotation takes precedence. The @Orc annotation is only supported on methods.
+To specify the number of characters for a String column type, simply use the `@Orc` annotation. If the framework finds 
+an existing JPA `@Column` annotation, it will use the length property of that as well. If both annotations are present, 
+the `@Orc` annotation takes precedence. The `@Orc` annotation is only supported on methods.
 
 ```java
     public class Student {
@@ -191,7 +189,7 @@ the @Orc annotation takes precedence. The @Orc annotation is only supported on m
 
 ##### Decimal precision/scale specification
 
-You can also specify the precision and scale of BigDecimal data type by using the JPA @Column or @Orc annotations. 
+You can also specify the precision and scale of `BigDecimal` data type by using the JPA `@Column` or `@Orc` annotations. 
 By default, the precision is 38 and scale is 10. This can be changed via annotation:
 
 ```java
@@ -228,7 +226,7 @@ defaulting to the first day of the month, we could write:
     }
 ```
 
-We can now annotate the YearMonth accessor with the `@OrcConverter` annotation:
+We can now annotate the `YearMonth` accessor with the `@OrcConverter` annotation:
 
 ```java
     public class Employee {
@@ -258,15 +256,15 @@ enum and returns a supported data-type.
 ##### Handling lists 
 
 Eclectic-orc supports creation of list columns that can hold a single scalar data type. To include a list column in the schema 
-definition, annotate the accessor method with the @OrcList annotation. Strictly speaking, any derivative of java.lang.Iterable
-is supported. The @OrcList annotation requires you to specify the Class of the entries of the Iterable. This is because the 
+definition, annotate the accessor method with the `@OrcList` annotation. Strictly speaking, any derivative of `java.lang.Iterable`
+is supported. The `@OrcList` annotation requires you to specify the `Class` of the entries of the `Iterable`. This is because the 
 type information is lost at runtime due to type-erasure. You also need to specify the average number of entries you expect to 
  see in the list. This is a technical implementation detail due to the way lists are stored in ORC files. Finally, there is 
- a converter attribute you can use to convert each item of the Iterable to a different type. Note: If you annotate the list 
- accessor with @OrcConverer, you will be modifying the List/Iterable itself into some other data type. 
+ a converter attribute you can use to convert each item of the `Iterable` to a different type. Note: If you annotate the list 
+ accessor with `@OrcConverer`, you will be modifying the `List`/`Iterable` itself into some other data type. 
   
-  If your Iterable consists of Enum instances, the existing strategy for enums is automatically used - using an enum method 
-  annotated with @Orc or calling name().  
+  If your `Iterable` consists of `Enum` instances, the existing strategy for enums is automatically used - using an enum method 
+  annotated with `@Orc` or calling `name()`.  
  
 
 # Release Notes
