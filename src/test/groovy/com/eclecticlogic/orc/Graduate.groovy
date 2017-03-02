@@ -59,14 +59,14 @@ public class Graduate extends Student {
     }
 
 
-    @OrcCollection(entryType = String.class, averageSize = 50)
+    @OrcList(entryType = String.class, averageSize = 50)
     @Orc(length = 30)
     public List<String> getSubjects() {
         return subjects;
     }
 
 
-    @OrcCollection(entryType = Long.class, averageSize = 25)
+    @OrcList(entryType = Long.class, averageSize = 25)
     public List<Long> getGrades() {
         return grades;
     }
@@ -82,27 +82,27 @@ public class Graduate extends Student {
         return graduationDate
     }
 
-    @OrcCollection(entryType = Character, averageSize = 5)
+    @OrcList(entryType = Character, averageSize = 5)
     Iterable<Character> getCourseGrades() {
         return courseGrades
     }
 
-    @OrcCollection(entryType = Date, averageSize = 5)
+    @OrcList(entryType = Date, averageSize = 5)
     Set<Date> getCourseDates() {
         return courseDates
     }
 
-    @OrcCollection(entryType = Boolean, averageSize = 5)
+    @OrcList(entryType = Boolean, averageSize = 5)
     Queue<Boolean> getCourseAudits() {
         return courseAudits
     }
 
-    @OrcCollection(entryType = Color, averageSize = 5)
+    @OrcList(entryType = Color, averageSize = 5)
     List<Color> getColors() {
         return colors
     }
 
-    @OrcCollection(entryType = House, averageSize = 10, converter = HouseConverter)
+    @OrcList(entryType = House, averageSize = 10, converter = HouseConverter)
     List<House> getHouses() {
         return houses
     }

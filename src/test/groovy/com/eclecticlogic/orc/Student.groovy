@@ -20,6 +20,7 @@ package com.eclecticlogic.orc
  */
 class Student {
 
+    Color chromaticColor
     String name
     int age
     BigDecimal score
@@ -55,4 +56,8 @@ class Student {
         this.score = score
     }
 
+    @OrcConverter(ChromaticConverter)
+    Color getChromaticColor() {
+        return chromaticColor
+    }
 }

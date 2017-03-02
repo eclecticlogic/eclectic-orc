@@ -17,7 +17,7 @@
 package com.eclecticlogic.orc.impl.schema;
 
 import com.eclecticlogic.orc.Converter;
-import com.eclecticlogic.orc.OrcCollection;
+import com.eclecticlogic.orc.OrcList;
 
 import java.lang.reflect.Method;
 
@@ -42,9 +42,9 @@ public class ListChildSchemaColumn extends SchemaColumn {
 
     @Override
     public Class<?> getColumnClassType() {
-        OrcCollection orcCollection = getLastAccessorMethod().getDeclaredAnnotation(OrcCollection.class);
+        OrcList orcCollection = getLastAccessorMethod().getDeclaredAnnotation(OrcList.class);
         if (orcCollection == null) {
-            throw new RuntimeException("@OrcCollection annotation must be present for list column types.");
+            throw new RuntimeException("@OrcList annotation must be present for list column types.");
         }
         Converter c = getConverter();
         if (c == null) {
@@ -56,12 +56,12 @@ public class ListChildSchemaColumn extends SchemaColumn {
 
 
     /**
-     * @return Check if the parent @OrcCollection has a converter defined.
+     * @return Check if the parent @OrcList has a converter defined.
      */
     @Override
     public Converter getConverter() {
-        OrcCollection orcCollection = getLastAccessorMethod().getDeclaredAnnotation(OrcCollection.class);
-        if (orcCollection.converter().equals(OrcCollection.DEFAULT.class)) {
+        OrcList orcCollection = getLastAccessorMethod().getDeclaredAnnotation(OrcList.class);
+        if (orcCollection.converter().equals(OrcList.DEFAULT.class)) {
             return null;
         } else {
             try {

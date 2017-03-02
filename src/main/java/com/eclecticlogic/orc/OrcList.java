@@ -23,13 +23,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotates a collection (strictly, any derivative of java.lang.Iterable) return type to denote child data type and average collection size.
+ * Annotates a list (strictly, any derivative of java.lang.Iterable) return type to denote child data type and average collection size.
  * Created by kabram
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Inherited
-public @interface OrcCollection {
+public @interface OrcList {
 
     /**
      * @return Type of the elements. Due to type-erasure, this information is lost at runtime in code. Therefore we attempt to explicitly

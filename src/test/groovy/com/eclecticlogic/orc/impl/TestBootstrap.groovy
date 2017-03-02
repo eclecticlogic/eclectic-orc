@@ -45,6 +45,7 @@ class TestBootstrap {
 
     void testOrcWriting() {
         Schema schema = Factory.createSchema(Graduate)
+                .column { it.chromaticColor }
                 .column { it.houses }
                 .column { it.colors }
                 .column { it.level }
@@ -68,6 +69,7 @@ class TestBootstrap {
         OrcHandle handle = Factory.createWriter(schema)
         List<Graduate> list = []
         list << new Graduate(name: 'abc', age: 10, allowance: 150.0).with {
+            it.chromaticColor = Color.WHITE
             it.houses = [new House(name: 'a'), new House(name: 'b')]
             it.colors = [Color.RED, Color.GREEN, Color.BLUE]
             it.level = Level.FRESHMEN
@@ -93,6 +95,7 @@ class TestBootstrap {
             return it
         }
         list << new Graduate(name: 'def', age: 20, allowance: 250.0).with {
+            it.chromaticColor = Color.RED
             it.subjects << 'math'
             it.subjects << 'english'
             it.subjects << 'history'
