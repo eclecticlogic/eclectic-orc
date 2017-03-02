@@ -56,7 +56,7 @@ public class SchemaColumn extends AbstractSchemaColumn {
      * there is not a vector that holds primitive chars).
      */
     public boolean isPrimitiveVector() {
-        return GeneratorUtil.getPrimitiveAccessorByType().containsKey(getColumnClassType());
+        return GeneratorUtil.getPrimitiveAccessorByType(getColumnClassType()) != null;
     }
 
 

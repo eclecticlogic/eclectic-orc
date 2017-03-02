@@ -30,8 +30,13 @@ import org.apache.hadoop.hive.ql.exec.vector.UnionColumnVector;
 import org.apache.orc.TypeDescription.Category;
 
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -39,14 +44,19 @@ import java.util.Optional;
 import static org.apache.orc.TypeDescription.Category.*;
 
 /**
+ * A dumping ground for various static mappings!
  * Created by kabram
  */
 public class GeneratorUtil {
 
-    private final static Map<Class<?>, Category> categoriesByType;
+    private final static Map<Class<?>, Category> categoriesByBasicType;
+    private final static Map<Class<?>, Category> categoriesByAssignableType;
     private final static Map<Class<?>, String> primitiveAccessorByType;
     private final static Map<Class<? extends ColumnVector>, String> templateNameClassReinitByType;
     private final static Map<Class<?>, Object> defaultsByPrimitiveType;
+    private final static Map<Category, String> typeDescriptionCreatorByCategory;
+    private final static Map<Category, String> templateNameColumnSetterByCategory;
+    private final static Map<Category, Class<? extends ColumnVector>> vectorClassesByCategory;
 
     static {
         {
@@ -67,7 +77,7 @@ public class GeneratorUtil {
             map.put(Float.class, Category.FLOAT);
             map.put(Double.TYPE, Category.DOUBLE);
             map.put(Double.class, Category.DOUBLE);
-            categoriesByType = Collections.unmodifiableMap(map);
+            categoriesByBasicType = Collections.unmodifiableMap(map);
         }
         {
             Map<Class<?>, String> map = new HashMap();
@@ -102,143 +112,120 @@ public class GeneratorUtil {
             map.put(Double.TYPE, Double.valueOf(0.0D));
             defaultsByPrimitiveType = Collections.unmodifiableMap(map);
         }
+        {
+            Map<Class<?>, Category> map = new HashMap<>();
+            map.put(BigDecimal.class, Category.DECIMAL);
+            map.put(LocalDate.class, Category.DATE);
+            map.put(LocalDateTime.class, Category.TIMESTAMP);
+            map.put(ZonedDateTime.class, Category.TIMESTAMP);
+            map.put(Date.class, Category.TIMESTAMP);
+            map.put(Iterable.class, Category.LIST);
+            categoriesByAssignableType = Collections.unmodifiableMap(map);
+        }
+        {
+            Map<Category, String> map = new HashMap<>();
+            map.put(Category.BINARY, "createBinary");
+            map.put(Category.BOOLEAN, "createBoolean");
+            map.put(Category.BYTE, "createByte");
+            map.put(Category.CHAR, "createVarchar"); // AWS Athena doesn't seem to support char.
+            map.put(Category.DATE, "createDate");
+            map.put(Category.DECIMAL, "createDecimal");
+            map.put(Category.DOUBLE, "createDouble");
+            map.put(Category.FLOAT, "createFloat");
+            map.put(Category.INT, "createInt");
+            map.put(Category.LIST, "createList");
+            map.put(Category.LONG, "createLong");
+            map.put(Category.MAP, "createMap");
+            map.put(Category.SHORT, "createShort");
+            map.put(Category.STRING, "createString");
+            map.put(Category.STRUCT, "createStruct");
+            map.put(Category.TIMESTAMP, "createTimestamp");
+            map.put(Category.UNION, "createUnion");
+            map.put(Category.VARCHAR, "createVarchar");
+            typeDescriptionCreatorByCategory = Collections.unmodifiableMap(map);
+        }
+        {
+            Map<Category, Class<? extends ColumnVector>> map = new HashMap<>();
+            map.put(Category.BINARY, BytesColumnVector.class);
+            map.put(Category.BOOLEAN, LongColumnVector.class);
+            map.put(Category.BYTE, LongColumnVector.class);
+            map.put(Category.CHAR, BytesColumnVector.class);
+            map.put(Category.DATE, LongColumnVector.class);
+            map.put(Category.DECIMAL, DecimalColumnVector.class);
+            map.put(Category.DOUBLE, DoubleColumnVector.class);
+            map.put(Category.FLOAT, DoubleColumnVector.class);
+            map.put(Category.INT, LongColumnVector.class);
+            map.put(Category.LIST, ListColumnVector.class);
+            map.put(Category.LONG, LongColumnVector.class);
+            map.put(Category.MAP, MapColumnVector.class);
+            map.put(Category.SHORT, LongColumnVector.class);
+            map.put(Category.STRING, BytesColumnVector.class);
+            map.put(Category.STRUCT, StructColumnVector.class);
+            map.put(Category.TIMESTAMP, TimestampColumnVector.class);
+            map.put(Category.UNION, UnionColumnVector.class);
+            map.put(Category.VARCHAR, BytesColumnVector.class);
+            vectorClassesByCategory = Collections.unmodifiableMap(map);
+        }
+        {
+            Map<Category, String> map = new HashMap<>();
+            map.put(Category.BINARY, "columnBinary");
+            map.put(Category.BOOLEAN, "columnBoolean");
+            map.put(Category.BYTE, "columnByte");
+            map.put(Category.CHAR, "columnChar"); // AWS Athena doesn't seem to support char.
+            map.put(Category.DATE, "columnDate");
+            map.put(Category.DECIMAL, "columnDecimal");
+            map.put(Category.DOUBLE, "columnDouble");
+            map.put(Category.FLOAT, "columnFloat");
+            map.put(Category.INT, "columnInt");
+            map.put(Category.LIST, "columnList");
+            map.put(Category.LONG, "columnLong");
+            map.put(Category.MAP, "columnMap");
+            map.put(Category.SHORT, "columnShort");
+            map.put(Category.STRING, "columnVarchar");
+            map.put(Category.STRUCT, "columnStruct");
+            map.put(Category.TIMESTAMP, "columnTimestamp");
+            map.put(Category.UNION, "columnUnion");
+            map.put(Category.VARCHAR, "columnVarchar");
+            templateNameColumnSetterByCategory = Collections.unmodifiableMap(map);
+        }
     }
 
     public static Object getDefaultValueForPrimitiveType(Class<?> primitiveType) {
         return defaultsByPrimitiveType.get(primitiveType);
     }
 
-    public static Map<Class<?>, Category> getCategoryByType() {
-        return categoriesByType;
+    public static Category getCategoryByBasicType(Class<?> clz) {
+        return categoriesByBasicType.get(clz);
     }
 
 
-    public static Map<Class<?>, String> getPrimitiveAccessorByType() {
-        return primitiveAccessorByType;
+    public static Category getCategoryByAssignableType(Class<?> clz) {
+        for (Class<?> aClz : categoriesByAssignableType.keySet()) {
+            if (aClz.isAssignableFrom(clz)) {
+                return categoriesByAssignableType.get(aClz);
+            }
+        }
+        return null;
+    }
+
+
+    public static String getPrimitiveAccessorByType(Class<?> clz) {
+        return primitiveAccessorByType.get(clz);
     }
 
 
     public static String getTypeDescriptionCreator(Category category) {
-        switch (category) {
-            case BINARY:
-                return "createBinary";
-            case BOOLEAN:
-                return "createBoolean";
-            case BYTE:
-                return "createByte";
-            case CHAR:
-                // TODO Defined as varchar because athena doesn't seem to support char.
-                return "createVarchar";
-            case DATE:
-                return "createDate";
-            case DECIMAL:
-                return "createDecimal";
-            case DOUBLE:
-                return "createDouble";
-            case FLOAT:
-                return "createFloat";
-            case INT:
-                return "createInt";
-            case LIST:
-                return "createList";
-            case LONG:
-                return "createLong";
-            case MAP:
-                return "createMap";
-            case SHORT:
-                return "createShort";
-            case STRING:
-                return "createString";
-            case STRUCT:
-                return "createStruct";
-            case TIMESTAMP:
-                return "createTimestamp";
-            case UNION:
-                return "createUnion";
-            case VARCHAR:
-                return "createVarchar";
-            default:
-                return null;
-        }
+        return typeDescriptionCreatorByCategory.get(category);
     }
 
 
     public static Class<? extends ColumnVector> getVectorClassName(Category category) {
-        switch (category) {
-            case BINARY:
-            case CHAR:
-            case VARCHAR:
-            case STRING:
-                return BytesColumnVector.class;
-            case BOOLEAN:
-            case BYTE:
-            case SHORT:
-            case INT:
-            case LONG:
-            case DATE:
-                return LongColumnVector.class;
-            case DECIMAL:
-                return DecimalColumnVector.class;
-            case FLOAT:
-            case DOUBLE:
-                return DoubleColumnVector.class;
-            case LIST:
-                return ListColumnVector.class;
-            case MAP:
-                return MapColumnVector.class;
-            case STRUCT:
-                return StructColumnVector.class;
-            case TIMESTAMP:
-                return TimestampColumnVector.class;
-            case UNION:
-                return UnionColumnVector.class;
-            default:
-                return null;
-        }
+        return vectorClassesByCategory.get(category);
     }
 
 
     public static String getTemplateNameColumnSetter(Category category) {
-        switch (category) {
-            case BINARY:
-                return "columnBinary";
-            case BOOLEAN:
-                return "columnBoolean";
-            case BYTE:
-                return "columnByte";
-            case CHAR:
-                return "columnChar";
-            case DATE:
-                return "columnDate";
-            case DECIMAL:
-                return "columnDecimal";
-            case DOUBLE:
-                return "columnDouble";
-            case FLOAT:
-                return "columnFloat";
-            case INT:
-                return "columnInt";
-            case LIST:
-                return "columnList";
-            case LONG:
-                return "columnLong";
-            case MAP:
-                return "columnMap";
-            case SHORT:
-                return "columnShort";
-            case STRING:
-                return "columnVarchar";
-            case STRUCT:
-                return "columnStruct";
-            case TIMESTAMP:
-                return "columnTimestamp";
-            case UNION:
-                return "columnUnion";
-            case VARCHAR:
-                return "columnVarchar";
-            default:
-                return null;
-        }
+        return templateNameColumnSetterByCategory.get(category);
     }
 
 

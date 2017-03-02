@@ -81,8 +81,8 @@ public class AbstractSchemaColumn implements GenInfo {
     private Category _getCategory(Class<?> clz) {
         if (clz == null) {
             return Category.STRUCT;
-        } else if (GeneratorUtil.getCategoryByType().containsKey(clz)) {
-            return GeneratorUtil.getCategoryByType().get(clz);
+        } else if (GeneratorUtil.getCategoryByBasicType(clz) != null) {
+            return GeneratorUtil.getCategoryByBasicType(clz);
         } else if (String.class.isAssignableFrom(clz)) {
             // Return STRING vs VARCHAR based on whether size is specified or not.
             Orc orc = getAnnotation(Orc.class);
@@ -95,39 +95,43 @@ public class AbstractSchemaColumn implements GenInfo {
                 return Category.VARCHAR;
             }
             return orc.length() == 0 ? Category.STRING : Category.VARCHAR;
-        } else if (BigDecimal.class.isAssignableFrom(clz)) {
-            return Category.DECIMAL;
-        } else if (LocalDate.class.isAssignableFrom(clz)) {
-            return Category.DATE;
-        } else if (ZonedDateTime.class.isAssignableFrom(clz) || LocalDateTime.class.isAssignableFrom(clz)) {
-            return Category.TIMESTAMP;
+        } else if (GeneratorUtil.getCategoryByAssignableType(clz) != null) {
+            Category category = GeneratorUtil.getCategoryByAssignableType(clz);
+            return category == Category.TIMESTAMP ? getAnnotationBasedCategory() : category;
         } else if (Date.class.isAssignableFrom(clz)) {
-            OrcTemporal orcTemporal = getAnnotation(OrcTemporal.class);
-            if (orcTemporal == null) {
-                Temporal jpaTemporal = getAnnotation(Temporal.class);
-                if (jpaTemporal == null) {
-                    return Category.TIMESTAMP;
-                }
-                switch (jpaTemporal.value()) {
-                    case DATE:
-                        return Category.DATE;
-                    case TIME:
-                    case TIMESTAMP:
-                        return Category.TIMESTAMP;
-                }
-            }
-            switch (orcTemporal.value()) {
-                case DATE:
-                    return Category.DATE;
-                case TIMESTAMP:
-                    return Category.TIMESTAMP;
-            }
-        } else if (Iterable.class.isAssignableFrom(clz)) {
-            return Category.LIST;
+
         } else if (Enum.class.isAssignableFrom(clz)) {
             return getEnumCategory((Class<? extends Enum<?>>) clz);
         }
         return Category.STRUCT;
+    }
+
+
+    /**
+     * @return DATE or TIMESTAMP based on presence of @OrcTemporal annotation.
+     */
+    protected Category getAnnotationBasedCategory() {
+        OrcTemporal orcTemporal = getAnnotation(OrcTemporal.class);
+        if (orcTemporal == null) {
+            Temporal jpaTemporal = getAnnotation(Temporal.class);
+            if (jpaTemporal == null) {
+                return Category.TIMESTAMP;
+            }
+            switch (jpaTemporal.value()) {
+                case DATE:
+                    return Category.DATE;
+                case TIME:
+                case TIMESTAMP:
+                    return Category.TIMESTAMP;
+            }
+        }
+        switch (orcTemporal.value()) {
+            case DATE:
+                return Category.DATE;
+            case TIMESTAMP:
+                return Category.TIMESTAMP;
+        }
+        return Category.TIMESTAMP;
     }
 
 

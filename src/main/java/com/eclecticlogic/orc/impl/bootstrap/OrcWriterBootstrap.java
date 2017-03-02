@@ -39,6 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * Main class responsible for bootstrapping the writer class by generating code at runtime based on the schema definition.
  * Created by kabram
  */
 public class OrcWriterBootstrap {

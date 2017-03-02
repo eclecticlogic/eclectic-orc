@@ -170,7 +170,7 @@ public class TypeInfo {
      * @return Returns the method that can be used on a boxed type to get the primitive type.
      */
     public String getPrimitiveConversionMethod() {
-        return GeneratorUtil.getPrimitiveAccessorByType().get(genInfo.getColumnClassType());
+        return GeneratorUtil.getPrimitiveAccessorByType(genInfo.getColumnClassType());
     }
 
 
