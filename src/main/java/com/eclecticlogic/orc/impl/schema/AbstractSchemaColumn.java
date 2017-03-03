@@ -25,12 +25,7 @@ import org.apache.orc.TypeDescription.Category;
 import javax.persistence.Column;
 import javax.persistence.Temporal;
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -78,7 +73,7 @@ public class AbstractSchemaColumn implements GenInfo {
 
 
     @SuppressWarnings("unchecked")
-    private Category _getCategory(Class<?> clz) {
+    protected Category _getCategory(Class<?> clz) {
         if (clz == null) {
             return Category.STRUCT;
         } else if (GeneratorUtil.getCategoryByBasicType(clz) != null) {
@@ -97,9 +92,7 @@ public class AbstractSchemaColumn implements GenInfo {
             return orc.length() == 0 ? Category.STRING : Category.VARCHAR;
         } else if (GeneratorUtil.getCategoryByAssignableType(clz) != null) {
             Category category = GeneratorUtil.getCategoryByAssignableType(clz);
-            return category == Category.TIMESTAMP ? getAnnotationBasedCategory() : category;
-        } else if (Date.class.isAssignableFrom(clz)) {
-
+            return category == Category.TIMESTAMP ? getAnnotationBasedDateCategory() : category;
         } else if (Enum.class.isAssignableFrom(clz)) {
             return getEnumCategory((Class<? extends Enum<?>>) clz);
         }
@@ -110,7 +103,7 @@ public class AbstractSchemaColumn implements GenInfo {
     /**
      * @return DATE or TIMESTAMP based on presence of @OrcTemporal annotation.
      */
-    protected Category getAnnotationBasedCategory() {
+    protected Category getAnnotationBasedDateCategory() {
         OrcTemporal orcTemporal = getAnnotation(OrcTemporal.class);
         if (orcTemporal == null) {
             Temporal jpaTemporal = getAnnotation(Temporal.class);
