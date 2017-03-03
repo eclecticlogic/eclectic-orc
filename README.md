@@ -163,6 +163,7 @@ that defines the `TemporalType` (or `OrcTemporalType`) as `DATE`.
 6. Any derivative of `Iterable` mapping to ORC `List` type, currently supporting only simple types as the member. See below for how to use lists.
 
 The following data types are **not supported** in the current release:
+
 1. `Binary` data type.
 2. `Map`
 3. `Union`
@@ -246,6 +247,7 @@ We can now annotate the `YearMonth` accessor with the `@OrcConverter` annotation
 
 ##### Java Enum
 Java Enums require special handling to convert them to a specific data type. There are three ways to handle enums.
+
 1. Do nothing: If your schema column is an `Enum` derivative, then the column will be treated as a `String` with the `name()`
 method being called to get the value.
 1. Annotation: Annotate a custom enum method with `@Orc`. If you have a method in your `Enum` class that provides the value 
