@@ -20,6 +20,7 @@ import com.eclecticlogic.orc.Converter
 import com.eclecticlogic.orc.Orc
 import com.eclecticlogic.orc.OrcTemporal
 import com.eclecticlogic.orc.OrcTemporalType
+import org.apache.orc.TypeDescription
 import org.testng.Assert
 import org.testng.annotations.Test
 
@@ -32,6 +33,7 @@ import java.time.LocalDateTime
 import java.time.ZonedDateTime
 
 import static org.apache.orc.TypeDescription.Category.*
+import static org.testng.Assert.assertEquals
 
 /**
  * Created by kabram
@@ -56,7 +58,7 @@ class TestAbstractSchemaColumn {
             }
         }
 
-        Assert.assertEquals(underTest1.columnClassType, String)
+        assertEquals(underTest1.columnClassType, String)
 
         AbstractSchemaColumn underTest2 = new AbstractSchemaColumn() {
             @Override
@@ -75,7 +77,7 @@ class TestAbstractSchemaColumn {
             }
         }
 
-        Assert.assertEquals(underTest2.columnClassType, BigDecimal)
+        assertEquals(underTest2.columnClassType, BigDecimal)
     }
 
     class Dollar extends BigDecimal {
@@ -113,17 +115,17 @@ class TestAbstractSchemaColumn {
                 }
             }
         }
-        Assert.assertEquals(column._getCategory(null), STRUCT)
-        Assert.assertEquals(column._getCategory(SampleClass), STRUCT)
-        Assert.assertEquals(column._getCategory(String), STRING)
-        Assert.assertEquals(column._getCategory(BigDecimal), DECIMAL)
-        Assert.assertEquals(column._getCategory(Dollar), DECIMAL)
-        Assert.assertEquals(column._getCategory(Boolean.TYPE), BOOLEAN)
-        Assert.assertEquals(column2._getCategory(String), VARCHAR)
-        Assert.assertEquals(column._getCategory(LocalDate), DATE)
-        Assert.assertEquals(column._getCategory(LocalDateTime), TIMESTAMP)
-        Assert.assertEquals(column._getCategory(Date), TIMESTAMP)
-        Assert.assertEquals(column._getCategory(ZonedDateTime), TIMESTAMP)
+        assertEquals(column._getCategory(null), STRUCT)
+        assertEquals(column._getCategory(SampleClass), STRUCT)
+        assertEquals(column._getCategory(String), STRING)
+        assertEquals(column._getCategory(BigDecimal), DECIMAL)
+        assertEquals(column._getCategory(Dollar), DECIMAL)
+        assertEquals(column._getCategory(Boolean.TYPE), BOOLEAN)
+        assertEquals(column2._getCategory(String), VARCHAR)
+        assertEquals(column._getCategory(LocalDate), DATE)
+        assertEquals(column._getCategory(LocalDateTime), TIMESTAMP)
+        assertEquals(column._getCategory(Date), TIMESTAMP)
+        assertEquals(column._getCategory(ZonedDateTime), TIMESTAMP)
 
         AbstractSchemaColumn column3 = new AbstractSchemaColumn() {
             def <A extends Annotation> A getAnnotation(Class<? extends A> clz) {
@@ -140,9 +142,9 @@ class TestAbstractSchemaColumn {
                 }
             }
         }
-        Assert.assertEquals(column3._getCategory(LocalDateTime), DATE)
-        Assert.assertEquals(column3._getCategory(Date), DATE)
-        Assert.assertEquals(column3._getCategory(ZonedDateTime), DATE)
+        assertEquals(column3._getCategory(LocalDateTime), DATE)
+        assertEquals(column3._getCategory(Date), DATE)
+        assertEquals(column3._getCategory(ZonedDateTime), DATE)
     }
 
 
@@ -159,7 +161,7 @@ class TestAbstractSchemaColumn {
                 return null
             }
         }
-        Assert.assertEquals(column.annotationBasedDateCategory, TIMESTAMP)
+        assertEquals(column.annotationBasedDateCategory, TIMESTAMP)
         column.returnValue = new Temporal() {
             @Override
             TemporalType value() {
@@ -171,7 +173,7 @@ class TestAbstractSchemaColumn {
                 return null
             }
         }
-        Assert.assertEquals(column.annotationBasedDateCategory, TIMESTAMP)
+        assertEquals(column.annotationBasedDateCategory, TIMESTAMP)
         column.returnValue = new Temporal() {
             @Override
             TemporalType value() {
@@ -183,7 +185,7 @@ class TestAbstractSchemaColumn {
                 return null
             }
         }
-        Assert.assertEquals(column.annotationBasedDateCategory, DATE)
+        assertEquals(column.annotationBasedDateCategory, DATE)
         column.returnValue = new OrcTemporal() {
             @Override
             OrcTemporalType value() {
@@ -195,7 +197,7 @@ class TestAbstractSchemaColumn {
                 return null
             }
         }
-        Assert.assertEquals(column.annotationBasedDateCategory, DATE)
+        assertEquals(column.annotationBasedDateCategory, DATE)
         column.returnValue = new OrcTemporal() {
             @Override
             OrcTemporalType value() {
@@ -207,6 +209,31 @@ class TestAbstractSchemaColumn {
                 return null
             }
         }
-        Assert.assertEquals(column.annotationBasedDateCategory, TIMESTAMP)
+        assertEquals(column.annotationBasedDateCategory, TIMESTAMP)
+    }
+
+    enum Month {
+        JAN, FEB, MAR
+    }
+
+    enum Animal {
+        DOG('D' as char), CAT('C' as char)
+
+        char code
+
+        Animal(char code) {
+            this.code = code
+        }
+
+        @Orc
+        char getCode() {
+            return code
+        }
+    }
+    
+    void testGetEnumCategory() {
+        AbstractSchemaColumn column = new AbstractSchemaColumn()
+        assertEquals(column.getEnumCategory(Month), STRING)
+        assertEquals(column.getEnumCategory(Animal), CHAR)
     }
 }
