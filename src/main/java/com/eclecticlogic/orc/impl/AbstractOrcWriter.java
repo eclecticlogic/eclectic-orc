@@ -54,7 +54,7 @@ public abstract class AbstractOrcWriter<T> implements OrcHandle<T>, OrcWriter<T>
     @Override
     public OrcHandle<T> withOptions(OrcFile.WriterOptions writerOptions) {
         this.writerOptions = writerOptions;
-        return null;
+        return this;
     }
 
     @Override

@@ -230,7 +230,7 @@ class TestAbstractSchemaColumn {
             return code
         }
     }
-    
+
     void testGetEnumCategory() {
         AbstractSchemaColumn column = new AbstractSchemaColumn()
         assertEquals(column.getEnumCategory(Month), STRING)
