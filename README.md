@@ -17,7 +17,7 @@ Download the eclectic-orc jar from Maven central:
     <dependency>
 	    <groupId>com.eclecticlogic</groupId>
 	    <artifactId>eclectic-orc</artifactId>
-	    <version>1.0.1</version>
+	    <version>1.0.2</version>
     </dependency>
 ```
 
@@ -271,8 +271,9 @@ type information is lost at runtime due to type-erasure. You also need to specif
 
 # Release Notes
 
-# 1.0.1
+# 1.0.2
 
+- Bug fix in bootstrap - incorrectly caching instance instead of class.
 - Bug fix in OrcWriter.withOptions() method.
 
 ### 1.0.0

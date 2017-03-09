@@ -46,7 +46,7 @@ public class OrcWriterBootstrap {
 
     private static final String ORC_WRITER_PACKAGE = "com.eclecticlogic.eclectic.orc.impl.writer.";
 
-    private final static ConcurrentHashMap<Class<?>, OrcHandle<?>> writersByClass = new ConcurrentHashMap<>();
+    private final static ConcurrentHashMap<Class<?>, Class<?>> writersByClass = new ConcurrentHashMap<>();
     // This is used to prevent linkage error due to concurrent creation of classes.
     private static AtomicInteger extractorNameSuffix = new AtomicInteger();
 
@@ -57,12 +57,16 @@ public class OrcWriterBootstrap {
     public static <T> OrcHandle<T> create(SchemaSpi<T> schema) {
         Class<T> clz = schema.getSchemaClass();
         writersByClass.computeIfAbsent(clz, (cz) -> createWriter(schema));
-        return (OrcHandle<T>) writersByClass.get(clz);
+        try {
+            return (OrcHandle<T>) writersByClass.get(clz).newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
     @SuppressWarnings("unchecked")
-    static <T> OrcHandle<T> createWriter(SchemaSpi<T> schema) {
+    static <T> Class<T> createWriter(SchemaSpi<T> schema) {
         ClassPool pool = ClassPool.getDefault();
         pool.insertClassPath(new ClassClassPath(AbstractOrcWriter.class));
         CtClass cc = pool.makeClass(ORC_WRITER_PACKAGE + schema.getSchemaClass().getSimpleName() + "$OrcWriter_" + extractorNameSuffix
@@ -79,8 +83,8 @@ public class OrcWriterBootstrap {
         }
 
         try {
-            return (OrcHandle<T>) cc.toClass().newInstance();
-        } catch (InstantiationException | IllegalAccessException | CannotCompileException e) {
+            return (Class<T>) cc.toClass();
+        } catch (CannotCompileException e) {
             throw new RuntimeException(e);
         }
     }
