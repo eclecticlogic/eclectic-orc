@@ -17,7 +17,7 @@ Download the eclectic-orc jar from Maven central:
     <dependency>
 	    <groupId>com.eclecticlogic</groupId>
 	    <artifactId>eclectic-orc</artifactId>
-	    <version>1.0.0</version>
+	    <version>1.0.1</version>
     </dependency>
 ```
 
