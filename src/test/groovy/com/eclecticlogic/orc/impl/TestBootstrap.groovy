@@ -19,17 +19,15 @@ package com.eclecticlogic.orc.impl
 import com.eclecticlogic.orc.Club
 import com.eclecticlogic.orc.Color
 import com.eclecticlogic.orc.Course
-import com.eclecticlogic.orc.Graduate
 import com.eclecticlogic.orc.Factory
+import com.eclecticlogic.orc.Graduate
+import com.eclecticlogic.orc.GraduateDelegate
 import com.eclecticlogic.orc.House
 import com.eclecticlogic.orc.Level
 import com.eclecticlogic.orc.OrcHandle
-import com.eclecticlogic.orc.OrcWriter
 import com.eclecticlogic.orc.Schema
 import com.eclecticlogic.orc.Teacher
 import org.apache.hadoop.fs.Path
-import org.apache.orc.CompressionKind
-import org.apache.orc.TypeDescription
 import org.testng.annotations.Test
 
 import java.nio.file.Files
@@ -45,6 +43,7 @@ class TestBootstrap {
 
     void testOrcWriting() {
         Schema schema = Factory.createSchema(Graduate)
+                .withDelegate(GraduateDelegate)
                 .column { it.chromaticColor }
                 .column { it.houses }
                 .column { it.colors }
@@ -65,6 +64,7 @@ class TestBootstrap {
                 .column { it.courseAudits }
                 .column { it.courseDates }
                 .column('initiation') { it.initiationDate }
+                .delegatedColumn { it.major() }
 
         OrcHandle handle = Factory.createWriter(schema)
         List<Graduate> list = []
@@ -116,11 +116,11 @@ class TestBootstrap {
             return it
         }
         list << new Graduate(name: 'aaa', age: 30, allowance: 350.0)
-        Path path = new Path('/home/kabram/temp/dp/graduate.orc')
+        Path path = new Path(System.getProperty('user.home'),'temp/dp/graduate.orc')
         try {
             handle.open(path).write(list).close()
         } finally {
-            Files.delete(Paths.get('/home/kabram/temp/dp/graduate.orc'))
+            Files.delete(Paths.get(System.getProperty('user.home'),'temp/dp/graduate.orc'))
         }
 
     }

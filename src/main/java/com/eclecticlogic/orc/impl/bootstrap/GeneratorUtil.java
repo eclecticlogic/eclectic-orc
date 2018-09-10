@@ -263,7 +263,7 @@ public class GeneratorUtil {
 
 
     public static Optional<Method> getAnnotatedMethodInEnum(Class<? extends Enum<?>> clz) {
-        return Arrays.stream(clz.getDeclaredMethods()) //
+        return Arrays.stream(clz.getMethods()) //
                 .filter(it -> it.isAnnotationPresent(Orc.class)) //
                 .filter(it -> it.getParameterCount() == 0) //
                 .filter(it -> !Void.TYPE.equals(it.getReturnType())) //

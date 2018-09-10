@@ -41,4 +41,23 @@ public interface Schema<T> {
      * @return self-reference for fluent interface.
      */
     Schema<T> column(String name, Function<T, Object> columnFunction);
+
+
+    /**
+     * @param delegate A class that accepts an instance of T in the constructor and provides "computed" functions.
+     * @param <R>
+     * @return self-reference for fluent-interface.
+     */
+    <R> Schema<T> withDelegate(Class<R> delegate);
+
+
+    <R> Schema<T> delegatedColumn(Function<R, Object> fieldFunction);
+
+    /**
+     * @param name An explicit name to be used for the column.
+     * @param columnFunction Same as above
+     * @return self-reference for fluent interface.
+     */
+    <R> Schema<T> delegatedColumn(String name, Function<R, Object> columnFunction);
+
 }

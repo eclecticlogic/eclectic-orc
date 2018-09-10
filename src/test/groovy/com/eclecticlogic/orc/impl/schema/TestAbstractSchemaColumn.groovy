@@ -20,8 +20,6 @@ import com.eclecticlogic.orc.Converter
 import com.eclecticlogic.orc.Orc
 import com.eclecticlogic.orc.OrcTemporal
 import com.eclecticlogic.orc.OrcTemporalType
-import org.apache.orc.TypeDescription
-import org.testng.Assert
 import org.testng.annotations.Test
 
 import javax.persistence.Temporal

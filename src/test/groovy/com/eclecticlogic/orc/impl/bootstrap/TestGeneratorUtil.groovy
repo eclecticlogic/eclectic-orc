@@ -17,8 +17,6 @@
 package com.eclecticlogic.orc.impl.bootstrap
 
 import com.eclecticlogic.orc.Orc
-import org.apache.orc.TypeDescription
-import org.testng.Assert
 import org.testng.annotations.Test
 
 import java.time.LocalDate
@@ -26,9 +24,7 @@ import java.time.LocalDateTime
 import java.time.ZonedDateTime
 
 import static org.apache.orc.TypeDescription.Category.*
-import static org.testng.Assert.assertEquals
-import static org.testng.Assert.assertFalse
-import static org.testng.Assert.assertTrue
+import static org.testng.Assert.*
 
 /**
  * Created by kabram

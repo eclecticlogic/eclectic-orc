@@ -16,9 +16,8 @@
 
 package com.eclecticlogic.orc.impl
 
-import com.eclecticlogic.orc.Graduate
 import com.eclecticlogic.orc.Factory
-import org.testng.annotations.Test
+import com.eclecticlogic.orc.Graduate
 
 /**
  * Created by kabram

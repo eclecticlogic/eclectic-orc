@@ -34,7 +34,9 @@ import java.util.function.Supplier;
 public class SchemaSpiImpl<T> implements SchemaSpi<T> {
 
     final Class<T> schemaClz;
-    final T proxy;
+    final T proxy, delegateProxy;
+    Object delegate;
+    Class<?> delegateClass;
     final List<Column> columns = new ArrayList<>();
     SchemaColumn currentSchemaColumn;
     String lastAccessedProperty;
@@ -42,6 +44,15 @@ public class SchemaSpiImpl<T> implements SchemaSpi<T> {
     public SchemaSpiImpl(Class<T> clz) {
         schemaClz = clz;
         proxy = new ProxyManager<>(this).generate(clz);
+        delegateProxy = new ProxyManager<>((SchemaSpiImpl<T>)null).generate(clz);
+    }
+
+
+    @Override
+    public <R> Schema<T> withDelegate(Class<R> delegate) {
+        this.delegateClass = delegate;
+        this.delegate = new ProxyManager<>(this).generate(delegate, new Class[] {schemaClz}, delegateProxy);
+        return this;
     }
 
 
@@ -53,20 +64,33 @@ public class SchemaSpiImpl<T> implements SchemaSpi<T> {
 
     @Override
     public Schema<T> column(Function<T, Object> columnFunction) {
-        return column(() -> lastAccessedProperty, columnFunction);
+        return column(() -> lastAccessedProperty, (Function<Object, Object>) columnFunction, false);
     }
 
 
     @Override
     public Schema<T> column(String name, Function<T, Object> columnFunction) {
-        return column(() -> name, columnFunction);
+        return column(() -> name, (Function<Object, Object>) columnFunction, false);
     }
 
 
-    Schema<T> column(Supplier<String> nameFunction, Function<T, Object> columnFunction) {
+    @Override
+    public <R> Schema<T> delegatedColumn(Function<R, Object> columnFunction) {
+        return column(() -> lastAccessedProperty, (Function<Object, Object>) columnFunction, true);
+    }
+
+
+    @Override
+    public <R> Schema<T> delegatedColumn(String name, Function<R, Object> columnFunction) {
+        return column(() -> name, (Function<Object, Object>) columnFunction, true);
+    }
+
+
+    Schema<T> column(Supplier<String> nameFunction, Function<Object, Object> columnFunction, boolean delegated) {
         Column column = new Column();
         column.setNameFunction(nameFunction);
         column.setColumnFunction(columnFunction);
+        column.setDelegated(delegated);
         columns.add(column);
         return this;
     }
@@ -75,10 +99,13 @@ public class SchemaSpiImpl<T> implements SchemaSpi<T> {
     @Override
     public SchemaColumn compile() {
         SchemaColumn struct = new SchemaColumn();
+        struct.setDelegateClass(delegateClass);
+
         for (Column<T> column : columns) {
             lastAccessedProperty = null;
             currentSchemaColumn = new SchemaColumn();
-            column.getColumnFunction().apply(proxy);
+            currentSchemaColumn.setNeedsDelegate(column.isDelegated());
+            column.getColumnFunction().apply(column.isDelegated() ? delegate : proxy);
             currentSchemaColumn.getTypeDescription().setName(column.getNameFunction().get());
             struct.getComplexType().getStructChildren().add(currentSchemaColumn);
             // Special types.

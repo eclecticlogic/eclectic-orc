@@ -25,7 +25,8 @@ import java.util.function.Supplier;
  */
 public class Column<T> {
     Supplier<String> nameFunction;
-    Function<T, Object> columnFunction;
+    Function<Object, Object> columnFunction;
+    boolean delegated;
     SchemaSpi subSchema;
 
     public Supplier<String> getNameFunction() {
@@ -36,12 +37,20 @@ public class Column<T> {
         this.nameFunction = nameFunction;
     }
 
-    public Function<T, Object> getColumnFunction() {
+    public Function<Object, Object> getColumnFunction() {
         return columnFunction;
     }
 
-    public void setColumnFunction(Function<T, Object> columnFunction) {
+    public void setColumnFunction(Function<Object, Object> columnFunction) {
         this.columnFunction = columnFunction;
+    }
+
+    public boolean isDelegated() {
+        return delegated;
+    }
+
+    public void setDelegated(boolean delegated) {
+        this.delegated = delegated;
     }
 
     public SchemaSpi getSubSchema() {

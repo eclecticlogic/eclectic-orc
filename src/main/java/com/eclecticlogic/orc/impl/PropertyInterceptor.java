@@ -22,7 +22,7 @@ import net.sf.cglib.proxy.MethodProxy;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.stream.*;
+import java.util.stream.Stream;
 
 /**
  * Created by kabram
@@ -41,7 +41,9 @@ public class PropertyInterceptor<T> implements MethodInterceptor {
 
     @Override
     public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
-        schema.add(method);
+        if (schema != null) {
+            schema.add(method);
+        }
         return getReturnValue(method);
     }
 

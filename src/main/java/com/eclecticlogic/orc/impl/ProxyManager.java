@@ -31,11 +31,6 @@ public class ProxyManager<T> {
     }
 
     public T generate(Class<T> clz) {
-        return enhance(clz);
-    }
-
-
-    public T enhance(Class<T> clz) {
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(clz);
         enhancer.setCallbacks(new Callback[]{new PropertyInterceptor<>(this, schema), NoOp.INSTANCE});
@@ -43,4 +38,12 @@ public class ProxyManager<T> {
         return (T) enhancer.create();
     }
 
+
+    public <R> R generate(Class<R> clz, Class[] argTypes, Object ... args) {
+        Enhancer enhancer = new Enhancer();
+        enhancer.setSuperclass(clz);
+        enhancer.setCallbacks(new Callback[]{new PropertyInterceptor<>(this, schema), NoOp.INSTANCE});
+        enhancer.setCallbackFilter(new SchemaFilter<>(clz));
+        return (R) enhancer.create(argTypes, args);
+    }
 }

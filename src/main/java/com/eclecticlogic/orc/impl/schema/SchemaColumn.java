@@ -29,6 +29,24 @@ public class SchemaColumn extends AbstractSchemaColumn {
     private final TypeInfo typeInfo = new TypeInfo(this);
     private final ComplexType complexType = new ComplexType(this);
     private final Template template = new Template(this);
+    private Class<?> delegateClass;
+    private boolean needsDelegate;
+
+    public boolean isNeedsDelegate() {
+        return needsDelegate;
+    }
+
+    public void setNeedsDelegate(boolean needsDelegate) {
+        this.needsDelegate = needsDelegate;
+    }
+
+    public Class<?> getDelegateClass() {
+        return delegateClass;
+    }
+
+    public void setDelegateClass(Class<?> delegateClass) {
+        this.delegateClass = delegateClass;
+    }
 
 
     public ComplexType getComplexType() {

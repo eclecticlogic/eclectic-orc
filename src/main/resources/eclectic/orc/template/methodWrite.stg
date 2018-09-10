@@ -1,6 +1,9 @@
 methodWrite(schemaColumn, sclass) ::= <<
     protected void write(Object inputRow) {
         <sclass.name> datum = (<sclass.name>)inputRow;
+        <if(schemaColumn.delegateClass)>
+                <schemaColumn.delegateClass.name> delegateInstance = new <schemaColumn.delegateClass.name>(datum);
+        <endif>
         <writeStruct(schemaColumn)>
     }
 >>
@@ -15,8 +18,16 @@ writeColumn(schemaColumn) ::= <<
     <else>
         {
             <schemaColumn.vectorClassName> vector = (<schemaColumn.vectorClassName>)vectorizedRowBatch.cols[<schemaColumn.columnIndex>];
-            <nullSafeChainAccess(schemaColumn, first(schemaColumn.accessorMethods), rest(schemaColumn.accessorMethods), "datum")>
+            <delegateAwareWrite(schemaColumn, first(schemaColumn.accessorMethods), rest(schemaColumn.accessorMethods), "datum")>
         }
+    <endif>
+>>
+
+delegateAwareWrite(schemaColumn, method, methods, var) ::= <<
+    <if(schemaColumn.needsDelegate)>
+        <nullSafeChainAccess(schemaColumn, method, methods, "delegateInstance")>
+    <else>
+        <nullSafeChainAccess(schemaColumn, method, methods, var)>
     <endif>
 >>
 
