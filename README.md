@@ -267,9 +267,44 @@ type information is lost at runtime due to type-erasure. You also need to specif
   
   If your `Iterable` consists of `Enum` instances, the existing strategy for enums is automatically used - using an enum method 
   annotated with `@Orc` or calling `name()`.  
- 
+
+# Custom columns
+
+If your collection member class does not have a method that gets you a column value that you need, i.e., you need to compute the value
+on the fly based on existing methods in the class, you can create a delegate class that accepts the collection member class as a
+constructor parameter and then implement your logic in the delegate class and use that method in the column definition.
+
+```java
+ Schema<Student> schema = Factory.createSchema(Student.class)
+             .withDelegate(StudentDelegate.class)
+             .delegatedColumn("someProperty", StudentDelegate::getLastFirstName)
+             ...
+```
+
+The StudentDelegate class would be something like this
+
+```java
+class StudentDelegate {
+
+    Student delegate
+
+    StudentDelegate(Student delegate) {
+        this.delegate = delegate
+    }
+
+
+    String getLastFirstName() {
+        return delegate.getLastName + ", " + delegate.getFirstName());
+    }
+}
+
+```
 
 # Release Notes
+
+# 1.0.3
+
+- Added delegate concept for computed columns.
 
 # 1.0.2
 

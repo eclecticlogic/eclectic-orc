@@ -57,7 +57,7 @@ enumConvertedValue(schemaColumn, value) ::= <<
     <if(schemaColumn.typeInfo.enum)><value>.<schemaColumn.template.enumMethod>()<else><convertedValue(schemaColumn, value)><endif>
 >>
 
-convertedValue(schemaColumn, value) ::= << <if(schemaColumn.converter)>new <schemaColumn.converter.class.name>().convert(<value>)<else><value><endif> >>
+convertedValue(schemaColumn, value) ::= << <if(schemaColumn.converter)>new <schemaColumn.converter.class.name>().convert(<if(schemaColumn.listEntryType.name)>(<schemaColumn.listEntryType.name>)<endif><value>)<else><value><endif> >>
 
 columnBinary(schemaColumn, var, val, loc) ::= <<
     // TODO
@@ -78,9 +78,9 @@ columnByte(schemaColumn, var, val, loc) ::= <<
 columnChar(schemaColumn, var, val, loc) ::= <<
     byte[] charArray = new byte[1];
     <if(schemaColumn.primitiveVector)>
-        charArray[0] = <val>.<schemaColumn.typeInfo.primitiveConversionMethod>;
+        charArray[0] = (byte)<val>.<schemaColumn.typeInfo.primitiveConversionMethod>;
     <else>
-        charArray[0] = <val>;
+        charArray[0] = (byte)<val>;
     <endif>
     <var>.setVal(<loc>, charArray);
 >>
@@ -129,7 +129,7 @@ columnList(schemaColumn, var, val, loc) ::= <<
     <var>.lengths[<loc>] = list.size();
     <var>.childCount += list.size();
     for (int i = 0; i \< list.size(); i++) {
-        int location = <var>.offsets[<loc>] + i;
+        int location = ((int)<var>.offsets[<loc>]) + i;
         <schemaColumn.complexType.listChild.VectorClassName> childVector = (<schemaColumn.complexType.listChild.VectorClassName>)<var>.child;
         <! If the list child has a converter, then we are trying to convert each element of the list. !>
         <if(schemaColumn.complexType.listChild.converter)>

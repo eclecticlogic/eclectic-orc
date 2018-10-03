@@ -40,6 +40,15 @@ public class ListChildSchemaColumn extends SchemaColumn {
     }
 
 
+    public Class<?> getListEntryType() {
+        OrcList orcCollection = getLastAccessorMethod().getDeclaredAnnotation(OrcList.class);
+        if (orcCollection == null) {
+            throw new RuntimeException("@OrcList annotation must be present for list column types.");
+        }
+        return orcCollection.entryType();
+    }
+
+
     @Override
     public Class<?> getColumnClassType() {
         OrcList orcCollection = getLastAccessorMethod().getDeclaredAnnotation(OrcList.class);

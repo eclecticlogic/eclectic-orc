@@ -20,12 +20,7 @@ import com.eclecticlogic.orc.OrcHandle;
 import com.eclecticlogic.orc.impl.AbstractOrcWriter;
 import com.eclecticlogic.orc.impl.SchemaSpi;
 import com.eclecticlogic.orc.impl.schema.SchemaColumn;
-import javassist.CannotCompileException;
-import javassist.ClassClassPath;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtNewMethod;
-import javassist.NotFoundException;
+import org.joor.Reflect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stringtemplate.v4.ST;
@@ -44,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class OrcWriterBootstrap {
 
-    private static final String ORC_WRITER_PACKAGE = "com.eclecticlogic.eclectic.orc.impl.writer.";
+    private static final String ORC_WRITER_PACKAGE = "com.eclecticlogic.eclectic.orc.impl.writer";
 
     private final static ConcurrentHashMap<Class<?>, Class<?>> writersByClass = new ConcurrentHashMap<>();
     // This is used to prevent linkage error due to concurrent creation of classes.
@@ -67,26 +62,33 @@ public class OrcWriterBootstrap {
 
     @SuppressWarnings("unchecked")
     static <T> Class<T> createWriter(SchemaSpi<T> schema) {
-        ClassPool pool = ClassPool.getDefault();
-        pool.insertClassPath(new ClassClassPath(AbstractOrcWriter.class));
-        CtClass cc = pool.makeClass(ORC_WRITER_PACKAGE + schema.getSchemaClass().getSimpleName() + "$OrcWriter_" + extractorNameSuffix
-                .incrementAndGet());
+        String className = schema.getSchemaClass().getSimpleName() + "$OrcWriter_" + extractorNameSuffix.incrementAndGet();
+        StringBuilder sourceCode = new StringBuilder();
+        sourceCode.append(getClassShell(ORC_WRITER_PACKAGE, className, AbstractOrcWriter.class.getName()));
+        sourceCode.append("\n");
+
         SchemaColumn schemaColumn = schema.compile();
-        try {
-            cc.setSuperclass(pool.get(AbstractOrcWriter.class.getName()));
+        sourceCode.append(createTypeDescriptionBody(schemaColumn));
+        sourceCode.append("\n");
+        sourceCode.append(getSpecialCaseSetupBody(schemaColumn));
+        sourceCode.append("\n");
+        sourceCode.append(getWriteBody(schemaColumn, schema.getSchemaClass()));
 
-            cc.addMethod(CtNewMethod.make(createTypeDescriptionBody(schemaColumn), cc));
-            cc.addMethod(CtNewMethod.make(getSpecialCaseSetupBody(schemaColumn), cc));
-            cc.addMethod(CtNewMethod.make(getWriteBody(schemaColumn, schema.getSchemaClass()), cc));
-        } catch (CannotCompileException | NotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        sourceCode.append("}");
 
-        try {
-            return (Class<T>) cc.toClass();
-        } catch (CannotCompileException e) {
-            throw new RuntimeException(e);
-        }
+        return (Class<T>)Reflect.compile(ORC_WRITER_PACKAGE + "." + className, sourceCode.toString()).type();
+    }
+
+
+    static String getClassShell(String packageName, String clsName, String superName) {
+        STGroup group = new STGroupFile("eclectic/orc/template/classShell.stg");
+        ST st = group.getInstanceOf("classShell");
+        st.add("pkgName", packageName);
+        st.add("clsName", clsName);
+        st.add("superName", superName);
+        String s = st.render();
+        logger.trace(s);
+        return s;
     }
 
 
