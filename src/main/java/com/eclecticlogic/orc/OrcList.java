@@ -37,6 +37,13 @@ public @interface OrcList {
      */
     Class<?> entryType();
 
+
+    /**
+     * @return Average size in bytes of the elements.
+     */
+    int elementSize() default 1;
+
+
     /**
      * @return Average size of elements in the collection.
      */

@@ -16,6 +16,7 @@
 
 package com.eclecticlogic.orc.impl
 
+import com.eclecticlogic.orc.ArrayTest
 import com.eclecticlogic.orc.Club
 import com.eclecticlogic.orc.Color
 import com.eclecticlogic.orc.Course
@@ -27,6 +28,7 @@ import com.eclecticlogic.orc.Level
 import com.eclecticlogic.orc.OrcHandle
 import com.eclecticlogic.orc.Schema
 import com.eclecticlogic.orc.Teacher
+import com.google.common.base.Strings
 import org.apache.hadoop.fs.Path
 import org.testng.annotations.Test
 
@@ -124,4 +126,31 @@ class TestBootstrap {
         }
 
     }
+
+
+    void testVeryLongArray() {
+        Schema schema = Factory.createSchema(ArrayTest)
+                .column { it.name }
+                .column { it.grades }
+
+        OrcHandle handle = Factory.createWriter(schema)
+        List<Graduate> list = []
+
+        String pattern = 'abcdefghijklmnopqrstuvwxyz'
+        for (int j = 0; j < 20; j++) {
+            ArrayTest entry = new ArrayTest(name: 'a')
+            for (int i = 1; i < 1_000; i++) {
+                entry.grades << Strings.repeat(pattern[new Random().nextInt(26)], new Random().nextInt(15))
+            }
+            list << entry
+        }
+
+        Path path = new Path(System.getProperty('user.home'),'temp/dp/array.orc')
+        try {
+            handle.open(path).write(list).close()
+        } finally {
+            Files.delete(Paths.get(System.getProperty('user.home'),'temp/dp/array.orc'))
+        }
+    }
+
 }

@@ -8,29 +8,33 @@ specialCaseListInstruction(schemaColumn) ::= <<
     {
         <schemaColumn.vectorClassName> vector = (<schemaColumn.vectorClassName>)vectorizedRowBatch.cols[<schemaColumn.columnIndex>];
         <schemaColumn.complexType.listChild.vectorClassName> child = (<schemaColumn.complexType.listChild.vectorClassName>)vector.child;
-        int newLength = child.isNull.length * <schemaColumn.complexType.averageSize>;
-        child.isNull = new boolean[newLength];
-        <(schemaColumn.complexType.listChild.complexType.templateNameListReinit)(schemaColumn, "child", "newLength")>
+        int nullLength = 1024 * <schemaColumn.complexType.averageNullSize>;
+        child.isNull = new boolean[nullLength];
+        vector.offsets = new long[nullLength];
+        int newLength = 1024 * <schemaColumn.complexType.averageSize>;
+        <(schemaColumn.complexType.listChild.complexType.templateNameListReinit)(schemaColumn, "child", "newLength", "nullLength")>
     }
 >>
 
-initBytesList(schemaColumn, val, len) ::= <<
+initBytesList(schemaColumn, val, len, nullLength) ::= <<
     <val>.vector = new byte[<len>][];
+    <val>.start = new int[<nullLength>];
+    <val>.length = new int[<nullLength>];
 >>
 
-initLongList(schemaColumn, val, len) ::= <<
+initLongList(schemaColumn, val, len, nullLength) ::= <<
     <val>.vector = new long[<len>];
 >>
 
-initDoubleList(schemaColumn, val, len) ::= <<
+initDoubleList(schemaColumn, val, len, nullLength) ::= <<
     <val>.vector = new double[<len>];
 >>
 
-initDecimalList(schemaColumn, val, len) ::= <<
+initDecimalList(schemaColumn, val, len, nullLength) ::= <<
     <val>.vector = new HiveDecimalWritable[<len>];
 >>
 
-initTimestampList(schemaColumn, val, len) ::= <<
+initTimestampList(schemaColumn, val, len, nullLength) ::= <<
     <val>.time = new long[<len>];
     <val>.nanos = new int[<len>];
 >>

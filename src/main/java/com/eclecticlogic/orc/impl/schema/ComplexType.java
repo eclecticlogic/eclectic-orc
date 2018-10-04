@@ -83,12 +83,24 @@ public class ComplexType {
     /**
      * @return Average size of list for list column types.
      */
+    public int getAverageNullSize() {
+        OrcList orcCollection = genInfo.getAnnotation(OrcList.class);
+        if (orcCollection == null) {
+            throw new RuntimeException("@OrcList annotation must be present for list column types.");
+        }
+        return orcCollection.averageSize() ;
+    }
+
+
+    /**
+     * @return Average size of list for list column types.
+     */
     public int getAverageSize() {
         OrcList orcCollection = genInfo.getAnnotation(OrcList.class);
         if (orcCollection == null) {
             throw new RuntimeException("@OrcList annotation must be present for list column types.");
         }
-        return orcCollection.averageSize();
+        return orcCollection.averageSize() * orcCollection.elementSize();
     }
 
 

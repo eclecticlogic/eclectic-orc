@@ -302,6 +302,11 @@ class StudentDelegate {
 
 # Release Notes
 
+# 1.0.5
+
+- Switch to JOOR for runtime compilation (better support for Java 9+)
+- Fixed bug in array allocation for list columns.
+
 # 1.0.3
 
 - Added delegate concept for computed columns.

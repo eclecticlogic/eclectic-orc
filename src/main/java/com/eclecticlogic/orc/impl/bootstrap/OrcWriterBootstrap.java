@@ -20,6 +20,7 @@ import com.eclecticlogic.orc.OrcHandle;
 import com.eclecticlogic.orc.impl.AbstractOrcWriter;
 import com.eclecticlogic.orc.impl.SchemaSpi;
 import com.eclecticlogic.orc.impl.schema.SchemaColumn;
+import com.google.common.collect.Lists;
 import org.joor.Reflect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +76,16 @@ public class OrcWriterBootstrap {
         sourceCode.append(getWriteBody(schemaColumn, schema.getSchemaClass()));
 
         sourceCode.append("}");
+
+        if (logger.isTraceEnabled()) {
+            String[] lines = sourceCode.toString().split("\n");
+            List<String> output = Lists.newArrayList();
+            for (int i = 0; i < lines.length; i++) {
+                output.add(String.format("%4d: %s", (i+1), lines[i]));
+            }
+            logger.trace("Class {} has source code \n{}", ORC_WRITER_PACKAGE + "." + className, String.join("\n", output));
+        }
+
 
         return (Class<T>)Reflect.compile(ORC_WRITER_PACKAGE + "." + className, sourceCode.toString()).type();
     }
