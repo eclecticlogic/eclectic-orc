@@ -18,11 +18,12 @@ package com.eclecticlogic.orc.impl
 
 import com.eclecticlogic.orc.Factory
 import com.eclecticlogic.orc.Graduate
+import org.testng.annotations.Test
 
 /**
  * Created by kabram
  */
-//@Test
+@Test
 class TestSchemaImpl {
 
     void testFieldNames() {
