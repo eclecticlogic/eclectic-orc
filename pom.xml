@@ -4,7 +4,7 @@
     <name>Orc Writer</name>
     <groupId>com.eclecticlogic</groupId>
     <artifactId>eclectic-orc</artifactId>
-    <version>1.0.6</version>
+    <version>1.0.7-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <description>Supports writing Java objects to ORC files.</description>
@@ -21,7 +21,7 @@
         <url>git@github.com:eclecticlogic/eclectic-orc.gt</url>
         <developerConnection>scm:git:git@github.com:eclecticlogic/eclectic-orc.git</developerConnection>
         <connection>scm:git:git@github.com:eclecticlogic/eclectic-orc.git</connection>
-        <tag>eclectic-orc-1.0.6</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <developers>
