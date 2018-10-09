@@ -21,7 +21,6 @@ import com.eclecticlogic.orc.impl.AbstractOrcWriter;
 import com.eclecticlogic.orc.impl.SchemaSpi;
 import com.eclecticlogic.orc.impl.schema.SchemaColumn;
 import com.google.common.collect.Lists;
-import org.joor.Reflect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stringtemplate.v4.ST;
@@ -87,7 +86,7 @@ public class OrcWriterBootstrap {
         }
 
 
-        return (Class<T>)Reflect.compile(ORC_WRITER_PACKAGE + "." + className, sourceCode.toString()).type();
+        return (Class<T>)Compile.compile(ORC_WRITER_PACKAGE + "." + className, sourceCode.toString());
     }
 
 

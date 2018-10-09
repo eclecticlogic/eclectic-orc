@@ -17,7 +17,7 @@ Download the eclectic-orc jar from Maven central:
     <dependency>
 	    <groupId>com.eclecticlogic</groupId>
 	    <artifactId>eclectic-orc</artifactId>
-	    <version>1.0.2</version>
+	    <version>1.0.6</version>
     </dependency>
 ```
 
@@ -301,6 +301,10 @@ class StudentDelegate {
 ```
 
 # Release Notes
+
+# 1.0.6
+
+- Temporary fix for compiler classpath issue with JOOR.
 
 # 1.0.5
 

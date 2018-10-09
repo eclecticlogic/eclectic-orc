@@ -4,7 +4,9 @@
 
     <test name="main">
         <packages>
-            <package name="com.eclecticlogic.orc.*" />
+            <package name="com.eclecticlogic.orc.impl" />
+            <package name="com.eclecticlogic.orc.impl.bootstrap" />
+            <package name="com.eclecticlogic.orc.impl.schema" />
         </packages>
     </test>
 </suite>
