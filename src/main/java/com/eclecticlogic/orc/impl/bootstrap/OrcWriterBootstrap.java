@@ -20,7 +20,7 @@ import com.eclecticlogic.orc.OrcHandle;
 import com.eclecticlogic.orc.impl.AbstractOrcWriter;
 import com.eclecticlogic.orc.impl.SchemaSpi;
 import com.eclecticlogic.orc.impl.schema.SchemaColumn;
-import com.google.common.collect.Lists;
+import javassist.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stringtemplate.v4.ST;
@@ -62,31 +62,26 @@ public class OrcWriterBootstrap {
 
     @SuppressWarnings("unchecked")
     static <T> Class<T> createWriter(SchemaSpi<T> schema) {
-        String className = schema.getSchemaClass().getSimpleName() + "$OrcWriter_" + extractorNameSuffix.incrementAndGet();
-        StringBuilder sourceCode = new StringBuilder();
-        sourceCode.append(getClassShell(ORC_WRITER_PACKAGE, className, AbstractOrcWriter.class.getName()));
-        sourceCode.append("\n");
-
+        ClassPool pool = ClassPool.getDefault();
+        pool.insertClassPath(new ClassClassPath(AbstractOrcWriter.class));
+        CtClass cc = pool.makeClass(ORC_WRITER_PACKAGE + schema.getSchemaClass().getSimpleName() + "$OrcWriter_" + extractorNameSuffix
+                .incrementAndGet());
         SchemaColumn schemaColumn = schema.compile();
-        sourceCode.append(createTypeDescriptionBody(schemaColumn));
-        sourceCode.append("\n");
-        sourceCode.append(getSpecialCaseSetupBody(schemaColumn));
-        sourceCode.append("\n");
-        sourceCode.append(getWriteBody(schemaColumn, schema.getSchemaClass()));
+        try {
+            cc.setSuperclass(pool.get(AbstractOrcWriter.class.getName()));
 
-        sourceCode.append("}");
-
-        if (logger.isTraceEnabled()) {
-            String[] lines = sourceCode.toString().split("\n");
-            List<String> output = Lists.newArrayList();
-            for (int i = 0; i < lines.length; i++) {
-                output.add(String.format("%4d: %s", (i+1), lines[i]));
-            }
-            logger.trace("Class {} has source code \n{}", ORC_WRITER_PACKAGE + "." + className, String.join("\n", output));
+            cc.addMethod(CtNewMethod.make(createTypeDescriptionBody(schemaColumn), cc));
+            cc.addMethod(CtNewMethod.make(getSpecialCaseSetupBody(schemaColumn), cc));
+            cc.addMethod(CtNewMethod.make(getWriteBody(schemaColumn, schema.getSchemaClass()), cc));
+        } catch (CannotCompileException | NotFoundException e) {
+            throw new RuntimeException(e);
         }
 
-
-        return (Class<T>)Compile.compile(ORC_WRITER_PACKAGE + "." + className, sourceCode.toString(), AbstractOrcWriter.class);
+        try {
+            return (Class<T>) cc.toClass();
+        } catch (CannotCompileException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

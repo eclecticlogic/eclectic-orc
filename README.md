@@ -17,7 +17,7 @@ Download the eclectic-orc jar from Maven central:
     <dependency>
 	    <groupId>com.eclecticlogic</groupId>
 	    <artifactId>eclectic-orc</artifactId>
-	    <version>1.0.6</version>
+	    <version>1.0.9</version>
     </dependency>
 ```
 
@@ -301,6 +301,10 @@ class StudentDelegate {
 ```
 
 # Release Notes
+
+# 1.0.9
+
+- Reverted usage of JOOR and brought back Javassist since JOOR cannot handle fat-jar that spring boot generates.
 
 # 1.0.6
 
