@@ -25,8 +25,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.OutputStream;
 import java.io.StringWriter;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodHandles.Lookup;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -42,9 +40,8 @@ import java.util.List;
  */
 class Compile {
 
-    static Class<?> compile(String className, String content) {
-        Lookup lookup = MethodHandles.lookup();
-        ClassLoader cl = lookup.lookupClass().getClassLoader();
+    static Class<?> compile(String className, String content, Class<?> classpathClass) {
+        ClassLoader cl = classpathClass.getClassLoader();
 
         try {
             return cl.loadClass(className);

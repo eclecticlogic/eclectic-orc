@@ -86,7 +86,7 @@ public class OrcWriterBootstrap {
         }
 
 
-        return (Class<T>)Compile.compile(ORC_WRITER_PACKAGE + "." + className, sourceCode.toString());
+        return (Class<T>)Compile.compile(ORC_WRITER_PACKAGE + "." + className, sourceCode.toString(), AbstractOrcWriter.class);
     }
 
 
