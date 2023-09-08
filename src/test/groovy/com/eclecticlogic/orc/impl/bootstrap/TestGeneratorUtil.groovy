@@ -59,14 +59,14 @@ class TestGeneratorUtil {
     }
 
     void testPrimitiveDefaultValues() {
-        assertEquals GeneratorUtil.getDefaultValueForPrimitiveType(Boolean.TYPE), false
+        assertEquals GeneratorUtil.getDefaultValueForPrimitiveType(Boolean.TYPE) as boolean, false
         assertEquals GeneratorUtil.getDefaultValueForPrimitiveType(Character.TYPE), '\u0000' as char
         assertEquals GeneratorUtil.getDefaultValueForPrimitiveType(Byte.TYPE), 0
         assertEquals GeneratorUtil.getDefaultValueForPrimitiveType(Short.TYPE), 0
-        assertEquals GeneratorUtil.getDefaultValueForPrimitiveType(Integer.TYPE), 0
+        assertEquals GeneratorUtil.getDefaultValueForPrimitiveType(Integer.TYPE) as int, 0
         assertEquals GeneratorUtil.getDefaultValueForPrimitiveType(Long.TYPE), 0
-        assertEquals GeneratorUtil.getDefaultValueForPrimitiveType(Float.TYPE), 0.0f
-        assertEquals GeneratorUtil.getDefaultValueForPrimitiveType(Double.TYPE), 0.0d
+        assertEquals GeneratorUtil.getDefaultValueForPrimitiveType(Float.TYPE) as float, 0.0f
+        assertEquals GeneratorUtil.getDefaultValueForPrimitiveType(Double.TYPE) as double, 0.0d
     }
 
     void testCategoriesByBasicTypes() {

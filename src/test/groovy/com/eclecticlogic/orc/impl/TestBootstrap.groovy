@@ -30,12 +30,13 @@ import com.eclecticlogic.orc.Schema
 import com.eclecticlogic.orc.Teacher
 import com.google.common.base.Strings
 import org.apache.hadoop.fs.Path
-import org.testng.annotations.Test
 
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.LocalDate
 import java.time.YearMonth
+
+import org.testng.annotations.Test
 
 /**
  * Created by kabram
@@ -148,7 +149,8 @@ class TestBootstrap {
         Path path = new Path(System.getProperty('user.home'),'temp/dp/array.orc')
         try {
             handle.open(path).write(list).close()
-        } finally {
+        }
+        finally {
             Files.delete(Paths.get(System.getProperty('user.home'),'temp/dp/array.orc'))
         }
     }
